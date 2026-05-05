@@ -122,6 +122,28 @@ public:
         return *this;
     }
 
+    Graph& path() noexcept {
+        mode_ = Mode::Path;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
+    Graph& forest(const size_type components) noexcept {
+        mode_ = Mode::Forest;
+        components_ = components;
+        no_multi_edges_ = true;
+        directed_ = false;
+        return *this;
+    }
+
+    Graph& connected_components(const size_type components) noexcept {
+        mode_ = Mode::ConnectedComponents;
+        components_ = components;
+        no_multi_edges_ = true;
+        directed_ = false;
+        return *this;
+    }
+
     Graph& bipartite(const size_type left_size) noexcept {
         mode_ = Mode::Bipartite;
         left_part_ = left_size;
@@ -153,6 +175,12 @@ public:
             generate_complete(result, rng);
         } else if (mode_ == Mode::Cycle) {
             generate_cycle(result, rng);
+        } else if (mode_ == Mode::Path) {
+            generate_path(result, rng);
+        } else if (mode_ == Mode::Forest) {
+            generate_forest(result, rng);
+        } else if (mode_ == Mode::ConnectedComponents) {
+            generate_connected_components(result, rng);
         } else if (mode_ == Mode::Bipartite) {
             generate_bipartite(result, rng);
         } else {
@@ -179,6 +207,9 @@ private:
         SparseConnected,
         Complete,
         Cycle,
+        Path,
+        Forest,
+        ConnectedComponents,
         Bipartite
     };
 
@@ -193,6 +224,7 @@ private:
     weight_type weight_right_{1};
     size_type layers_{0};
     size_type left_part_{0};
+    size_type components_{0};
     bool shuffle_{false};
     Mode mode_{Mode::General};
 
@@ -412,6 +444,78 @@ private:
             result.push_back(make_edge(i, i + 1, rng));
         }
         result.push_back(make_edge(nodes_ - 1, 0, rng));
+    }
+
+    void generate_path(std::vector<edge_type>& result, core::Random& rng) const {
+        const size_type count = nodes_ > 0 ? nodes_ - 1 : 0;
+        if (has_edges_) {
+            core::require(requested_edges_ == count, "Graph::path edge count must equal n - 1");
+        }
+        result.reserve(count);
+        for (size_type i = 0; i + 1 < nodes_; ++i) {
+            result.push_back(make_edge(i, i + 1, rng));
+        }
+    }
+
+    void validate_components(const char* name) const {
+        if (nodes_ == 0) {
+            core::require(components_ == 0, std::string(name) + " requires 0 components when n = 0");
+            return;
+        }
+        core::require(components_ >= 1 && components_ <= nodes_, std::string(name) + " components must be in [1, n]");
+    }
+
+    void generate_forest(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(!directed_, "Graph::forest supports undirected graphs only");
+        validate_components("Graph::forest");
+        const size_type count = nodes_ >= components_ ? nodes_ - components_ : 0;
+        if (has_edges_) {
+            core::require(requested_edges_ == count, "Graph::forest edge count must equal n - components");
+        }
+        result.reserve(count);
+        for (size_type c = 0; c < components_; ++c) {
+            const size_type begin = c * nodes_ / components_;
+            const size_type end = (c + 1) * nodes_ / components_;
+            for (size_type i = begin; i + 1 < end; ++i) {
+                result.push_back(make_edge(i, i + 1, rng));
+            }
+        }
+    }
+
+    void generate_connected_components(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(!directed_, "Graph::connected_components supports undirected graphs only");
+        validate_components("Graph::connected_components");
+
+        std::uint64_t maximum = 0;
+        for (size_type c = 0; c < components_; ++c) {
+            const size_type begin = c * nodes_ / components_;
+            const size_type end = (c + 1) * nodes_ / components_;
+            const std::uint64_t size = static_cast<std::uint64_t>(end - begin);
+            maximum += size * (size - 1) / 2;
+        }
+
+        const size_type minimum = nodes_ >= components_ ? nodes_ - components_ : 0;
+        const size_type count = requested_or_default(maximum, minimum, "Graph::connected_components");
+        core::require(count >= minimum, "Graph::connected_components edge count must be at least n - components");
+
+        result.reserve(count);
+        for (size_type c = 0; c < components_; ++c) {
+            const size_type begin = c * nodes_ / components_;
+            const size_type end = (c + 1) * nodes_ / components_;
+            for (size_type i = begin; i + 1 < end; ++i) {
+                result.push_back(make_edge(i, i + 1, rng));
+            }
+        }
+
+        for (size_type c = 0; c < components_ && result.size() < count; ++c) {
+            const size_type begin = c * nodes_ / components_;
+            const size_type end = (c + 1) * nodes_ / components_;
+            for (size_type u = begin; u + 1 < end && result.size() < count; ++u) {
+                for (size_type v = u + 2; v < end && result.size() < count; ++v) {
+                    result.push_back(make_edge(u, v, rng));
+                }
+            }
+        }
     }
 
     void generate_bipartite(std::vector<edge_type>& result, core::Random& rng) const {

@@ -24,6 +24,19 @@ int main() {
     std::sort(shuffled.begin(), shuffled.end());
     assert((shuffled == std::vector<long long>{1, 2, 3, 4, 5}));
 
+    auto almost = cp_stress_gen::Array(8).almost_sorted(3).build(rng);
+    std::sort(almost.begin(), almost.end());
+    assert((almost == std::vector<long long>{1, 2, 3, 4, 5, 6, 7, 8}));
+
+    const auto equal = cp_stress_gen::Array(30).many_equal(4).build(rng);
+    assert(equal.size() == 30);
+    for (const auto value : equal) {
+        assert(value >= 1 && value <= 4);
+    }
+
+    const auto blocky = cp_stress_gen::Array(7).blocky(3).build(rng);
+    assert((blocky == std::vector<long long>{1, 1, 1, 2, 2, 2, 3}));
+
     bool thrown = false;
     try {
         (void)cp_stress_gen::Array(3).range(5, 1);
@@ -32,6 +45,13 @@ int main() {
     }
     assert(thrown);
 
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Array(3).many_equal(0);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
     return 0;
 }
-

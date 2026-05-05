@@ -36,6 +36,9 @@ int main() {
     assert_no_duplicate_edges(layered, true);
     for (const auto& edge : layered) {
         assert(edge.u < edge.v);
+        const int source_layer = (edge.u - 1) * 3 / 9;
+        const int target_layer = (edge.v - 1) * 3 / 9;
+        assert(source_layer < target_layer);
     }
 
     const auto complete = cp_stress_gen::Graph(5).complete().build(rng);
@@ -57,6 +60,20 @@ int main() {
     const auto connected = cp_stress_gen::Graph(7).edges(8).sparse_connected().build(rng);
     assert(connected.size() == 8);
     assert_no_duplicate_edges(connected, false);
+
+    const auto path = cp_stress_gen::Graph(6).path().build(rng);
+    assert(path.size() == 5);
+    for (std::size_t i = 0; i < path.size(); ++i) {
+        assert(path[i].u + 1 == path[i].v);
+    }
+
+    const auto forest = cp_stress_gen::Graph(8).forest(3).build(rng);
+    assert(forest.size() == 5);
+    assert_no_duplicate_edges(forest, false);
+
+    const auto components = cp_stress_gen::Graph(8).edges(6).connected_components(3).build(rng);
+    assert(components.size() == 6);
+    assert_no_duplicate_edges(components, false);
 
     const auto weighted = cp_stress_gen::Graph(5).edges(6).directed().weighted(2, 4).build(rng);
     assert(weighted.size() == 6);
@@ -82,6 +99,29 @@ int main() {
     }
     assert(thrown);
 
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(4).edges(2).path().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).forest(0).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).edges(1).connected_components(2).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
     return 0;
 }
-

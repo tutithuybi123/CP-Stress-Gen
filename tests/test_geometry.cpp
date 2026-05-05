@@ -26,6 +26,25 @@ int main() {
         assert(line[i].y == 3 - static_cast<long long>(i));
     }
 
+    const auto boundary = cp_stress_gen::Geometry::rectangle_boundary_points(20).rectangle(0, 0, 3, 2).build(rng);
+    assert(boundary.size() == 20);
+    for (const auto& point : boundary) {
+        assert(point.x == 0 || point.x == 3 || point.y == 0 || point.y == 2);
+    }
+
+    const auto clustered = cp_stress_gen::Geometry::clustered_points(30).center(10, -10).radius(2).build(rng);
+    assert(clustered.size() == 30);
+    for (const auto& point : clustered) {
+        assert(point.x >= 8 && point.x <= 12);
+        assert(point.y >= -12 && point.y <= -8);
+    }
+
+    const auto duplicates = cp_stress_gen::Geometry::duplicate_points(5).point(4, 7).build();
+    assert(duplicates.size() == 5);
+    for (const auto& point : duplicates) {
+        assert(point.x == 4 && point.y == 7);
+    }
+
     bool thrown = false;
     try {
         (void)cp_stress_gen::Geometry::points(10).rectangle(1, 1, 2, 2).unique().build(rng);
@@ -42,6 +61,13 @@ int main() {
     }
     assert(thrown);
 
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::clustered_points(3).radius(-1);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
     return 0;
 }
-

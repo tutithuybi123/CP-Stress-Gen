@@ -43,6 +43,27 @@ public:
         return *this;
     }
 
+    Array& almost_sorted(const size_type swaps) {
+        core::require(swaps <= size_, "Array::almost_sorted swaps must be <= n");
+        mode_ = Mode::AlmostSorted;
+        swaps_ = swaps;
+        return *this;
+    }
+
+    Array& many_equal(const size_type distinct_values) {
+        core::require_positive(distinct_values, "Array::many_equal distinct_values must be positive");
+        mode_ = Mode::ManyEqual;
+        distinct_values_ = distinct_values;
+        return *this;
+    }
+
+    Array& blocky(const size_type block_size) {
+        core::require_positive(block_size, "Array::blocky block_size must be positive");
+        mode_ = Mode::Blocky;
+        block_size_ = block_size;
+        return *this;
+    }
+
     [[nodiscard]] size_type size() const noexcept {
         return size_;
     }
@@ -64,7 +85,10 @@ private:
     enum class Mode {
         Fill,
         Iota,
-        Range
+        Range,
+        AlmostSorted,
+        ManyEqual,
+        Blocky
     };
 
     size_type size_;
@@ -74,6 +98,9 @@ private:
     value_type step_{1};
     value_type left_{0};
     value_type right_{0};
+    size_type swaps_{0};
+    size_type distinct_values_{1};
+    size_type block_size_{1};
     bool shuffle_{false};
 
     [[nodiscard]] std::vector<value_type> build_values(core::Random& rng) const {
@@ -86,9 +113,26 @@ private:
                 values[i] = current;
                 current += step_;
             }
-        } else {
+        } else if (mode_ == Mode::Range) {
             for (size_type i = 0; i < size_; ++i) {
                 values[i] = rng.integer<value_type>(left_, right_);
+            }
+        } else if (mode_ == Mode::AlmostSorted) {
+            for (size_type i = 0; i < size_; ++i) {
+                values[i] = static_cast<value_type>(i + 1);
+            }
+            for (size_type i = 0; i < swaps_ && values.size() > 1; ++i) {
+                const size_type a = rng.integer<size_type>(0, values.size() - 1);
+                const size_type b = rng.integer<size_type>(0, values.size() - 1);
+                std::swap(values[a], values[b]);
+            }
+        } else if (mode_ == Mode::ManyEqual) {
+            for (size_type i = 0; i < size_; ++i) {
+                values[i] = static_cast<value_type>(rng.integer<size_type>(1, distinct_values_));
+            }
+        } else {
+            for (size_type i = 0; i < size_; ++i) {
+                values[i] = static_cast<value_type>(i / block_size_ + 1);
             }
         }
         return values;
@@ -107,4 +151,3 @@ private:
 };
 
 } // namespace cp_stress_gen
-

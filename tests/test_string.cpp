@@ -32,6 +32,18 @@ int main() {
     cp_stress_gen::core::Random b(99);
     assert(cp_stress_gen::String(25).digits().build(a) == cp_stress_gen::String(25).digits().build(b));
 
+    const auto palindrome = cp_stress_gen::String(9).alphabet("abc").palindrome().build(rng);
+    assert(palindrome.size() == 9);
+    for (std::size_t i = 0; i < palindrome.size(); ++i) {
+        assert(palindrome[i] == palindrome[palindrome.size() - 1 - i]);
+    }
+
+    const auto almost = cp_stress_gen::String(8).alphabet("ab").almost_palindrome(2).build(rng);
+    assert(almost.size() == 8);
+
+    assert(cp_stress_gen::String(8).periodic("abc").build(rng) == "abcabcab");
+    assert(cp_stress_gen::String(5).prefix_heavy('x', 'y').build(rng) == "xxxxy");
+
     bool thrown = false;
     try {
         (void)cp_stress_gen::String(3).alphabet("");
@@ -40,6 +52,21 @@ int main() {
     }
     assert(thrown);
 
+    thrown = false;
+    try {
+        (void)cp_stress_gen::String(3).periodic("");
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::String(3).almost_palindrome(2);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
     return 0;
 }
-

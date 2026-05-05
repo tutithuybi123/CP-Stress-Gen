@@ -163,6 +163,124 @@ public:
         coord_type dy_{0};
     };
 
+    class BoundaryGenerator {
+    public:
+        explicit BoundaryGenerator(const size_type count) : count_(count) {}
+
+        BoundaryGenerator& rectangle(const coord_type x1, const coord_type y1, const coord_type x2, const coord_type y2) {
+            core::require_range(x1, x2, "Geometry::rectangle_boundary_points requires x1 <= x2");
+            core::require_range(y1, y2, "Geometry::rectangle_boundary_points requires y1 <= y2");
+            x1_ = x1;
+            y1_ = y1;
+            x2_ = x2;
+            y2_ = y2;
+            return *this;
+        }
+
+        [[nodiscard]] std::vector<point_type> build(core::Random& rng) const {
+            const std::vector<point_type> boundary = boundary_points();
+            core::require(!boundary.empty() || count_ == 0, "Geometry::rectangle_boundary_points has no boundary points");
+
+            std::vector<point_type> result;
+            result.reserve(count_);
+            for (size_type i = 0; i < count_; ++i) {
+                const size_type index = rng.integer<size_type>(0, boundary.size() - 1);
+                result.push_back(boundary[index]);
+            }
+            return result;
+        }
+
+        [[nodiscard]] std::vector<point_type> build() const {
+            core::Random rng = core::Random::from_time();
+            return build(rng);
+        }
+
+    private:
+        size_type count_;
+        coord_type x1_{0};
+        coord_type y1_{0};
+        coord_type x2_{0};
+        coord_type y2_{0};
+
+        [[nodiscard]] std::vector<point_type> boundary_points() const {
+            std::vector<point_type> result;
+            for (coord_type x = x1_; x <= x2_; ++x) {
+                result.push_back(point_type{x, y1_});
+                if (y2_ != y1_) {
+                    result.push_back(point_type{x, y2_});
+                }
+            }
+            for (coord_type y = y1_ + 1; y < y2_; ++y) {
+                result.push_back(point_type{x1_, y});
+                if (x2_ != x1_) {
+                    result.push_back(point_type{x2_, y});
+                }
+            }
+            return result;
+        }
+    };
+
+    class ClusterGenerator {
+    public:
+        explicit ClusterGenerator(const size_type count) : count_(count) {}
+
+        ClusterGenerator& center(const coord_type x, const coord_type y) noexcept {
+            center_ = point_type{x, y};
+            return *this;
+        }
+
+        ClusterGenerator& radius(const coord_type radius) {
+            core::require(radius >= 0, "Geometry::clustered_points radius must be non-negative");
+            radius_ = radius;
+            return *this;
+        }
+
+        [[nodiscard]] std::vector<point_type> build(core::Random& rng) const {
+            std::vector<point_type> result;
+            result.reserve(count_);
+            for (size_type i = 0; i < count_; ++i) {
+                result.push_back(point_type{
+                    rng.integer<coord_type>(center_.x - radius_, center_.x + radius_),
+                    rng.integer<coord_type>(center_.y - radius_, center_.y + radius_)
+                });
+            }
+            return result;
+        }
+
+        [[nodiscard]] std::vector<point_type> build() const {
+            core::Random rng = core::Random::from_time();
+            return build(rng);
+        }
+
+    private:
+        size_type count_;
+        point_type center_{0, 0};
+        coord_type radius_{0};
+    };
+
+    class DuplicateGenerator {
+    public:
+        explicit DuplicateGenerator(const size_type count) : count_(count) {}
+
+        DuplicateGenerator& point(const coord_type x, const coord_type y) noexcept {
+            point_ = point_type{x, y};
+            return *this;
+        }
+
+        DuplicateGenerator& point(const point_type point) noexcept {
+            point_ = point;
+            return *this;
+        }
+
+        [[nodiscard]] std::vector<point_type> build() const {
+            return std::vector<point_type>(count_, point_);
+        }
+
+    private:
+        size_type count_;
+        point_type point_{0, 0};
+    };
+
     [[nodiscard]] static PointGenerator points(const size_type count) {
         return PointGenerator(count);
     }
@@ -170,7 +288,18 @@ public:
     [[nodiscard]] static CollinearGenerator collinear(const size_type count) {
         return CollinearGenerator(count);
     }
+
+    [[nodiscard]] static BoundaryGenerator rectangle_boundary_points(const size_type count) {
+        return BoundaryGenerator(count);
+    }
+
+    [[nodiscard]] static ClusterGenerator clustered_points(const size_type count) {
+        return ClusterGenerator(count);
+    }
+
+    [[nodiscard]] static DuplicateGenerator duplicate_points(const size_type count) {
+        return DuplicateGenerator(count);
+    }
 };
 
 } // namespace cp_stress_gen
-

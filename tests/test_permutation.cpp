@@ -28,6 +28,15 @@ int main() {
     const auto almost = cp_stress_gen::Permutation(8).almost_sorted(3).build(rng);
     assert_permutation(almost, 1);
 
+    const auto shifted = cp_stress_gen::Permutation(5).cyclic_shift(2).build(rng);
+    assert((shifted == std::vector<int>{3, 4, 5, 1, 2}));
+
+    const auto few = cp_stress_gen::Permutation(8).few_swaps(2).build(rng);
+    assert_permutation(few, 1);
+
+    const auto blocks = cp_stress_gen::Permutation(7).blocks(3).build(rng);
+    assert((blocks == std::vector<int>{3, 2, 1, 6, 5, 4, 7}));
+
     bool thrown = false;
     try {
         (void)cp_stress_gen::Permutation(3).almost_sorted(4).build(rng);
@@ -36,6 +45,13 @@ int main() {
     }
     assert(thrown);
 
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Permutation(3).blocks(0);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
     return 0;
 }
-

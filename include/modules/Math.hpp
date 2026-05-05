@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <utility>
 #include <vector>
 
 namespace cp_stress_gen {
@@ -78,6 +79,21 @@ public:
         return result;
     }
 
+    [[nodiscard]] static bool is_prime(const long long n) noexcept {
+        if (n < 2) {
+            return false;
+        }
+        if (n % 2 == 0) {
+            return n == 2;
+        }
+        for (long long d = 3; d * d <= n; d += 2) {
+            if (n % d == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     [[nodiscard]] static int random_prime(const int left, const int right, core::Random& rng) {
         core::require_range(left, right, "Math::random_prime requires left <= right");
         const auto primes = primes_up_to(right);
@@ -91,7 +107,54 @@ public:
         const std::size_t index = rng.integer<std::size_t>(0, candidates.size() - 1);
         return candidates[index];
     }
+
+    [[nodiscard]] static long long random_composite(const long long left, const long long right, core::Random& rng) {
+        core::require_range(left, right, "Math::random_composite requires left <= right");
+        std::vector<long long> candidates;
+        for (long long value = left; value <= right; ++value) {
+            if (value > 1 && !is_prime(value)) {
+                candidates.push_back(value);
+            }
+        }
+        core::require(!candidates.empty(), "Math::random_composite found no composite in range");
+        const std::size_t index = rng.integer<std::size_t>(0, candidates.size() - 1);
+        return candidates[index];
+    }
+
+    [[nodiscard]] static std::pair<long long, long long> coprime_pair(
+        const long long left,
+        const long long right,
+        core::Random& rng
+    ) {
+        core::require_range(left, right, "Math::coprime_pair requires left <= right");
+        for (int attempt = 0; attempt < 10000; ++attempt) {
+            const long long a = rng.integer<long long>(left, right);
+            const long long b = rng.integer<long long>(left, right);
+            if (gcd(a, b) == 1) {
+                return std::make_pair(a, b);
+            }
+        }
+        for (long long a = left; a <= right; ++a) {
+            for (long long b = left; b <= right; ++b) {
+                if (gcd(a, b) == 1) {
+                    return std::make_pair(a, b);
+                }
+            }
+        }
+        throw std::invalid_argument("Math::coprime_pair found no coprime pair in range");
+    }
+
+    [[nodiscard]] static std::pair<long long, long long> with_gcd(
+        const long long g,
+        const long long multiplier_left,
+        const long long multiplier_right,
+        core::Random& rng
+    ) {
+        core::require(g > 0, "Math::with_gcd requires g > 0");
+        core::require(multiplier_left > 0, "Math::with_gcd requires positive multipliers");
+        const auto multipliers = coprime_pair(multiplier_left, multiplier_right, rng);
+        return std::make_pair(g * multipliers.first, g * multipliers.second);
+    }
 };
 
 } // namespace cp_stress_gen
-
