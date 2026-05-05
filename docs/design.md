@@ -81,3 +81,10 @@ Allowed:
 - inline definitions in headers
 - standard C++17 type traits
 
+## Release Discipline
+
+- Run `scripts/check_all.ps1` before release commits.
+- Keep GitHub Actions CI on direct `g++` commands.
+- Do not commit generated artifacts such as `.tmp_build/`, `.exe`, `.o`, or `.obj`.
+- Keep release notes in `CHANGELOG.md`.
+- Keep deferred or risky work documented instead of overclaiming support.

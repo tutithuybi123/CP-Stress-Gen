@@ -1,5 +1,9 @@
 # CP-Stress-Gen
 
+[![CI](https://github.com/tutithuybi123/CP-Stress-Gen/actions/workflows/ci.yml/badge.svg)](https://github.com/tutithuybi123/CP-Stress-Gen/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
+
 `CP-Stress-Gen` is a lightweight, header-only C++17 library for competitive programming test generation. It provides fluent generators, deterministic seeded output, validation helpers, simple printers, and practical examples for local stress testing.
 
 ## Documentation
@@ -7,6 +11,8 @@
 - [English documentation](docs/en/overview.md)
 - [English installation guide](docs/en/installation.md)
 - [API reference](docs/api.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
 - [Tài liệu tiếng Việt](docs/vn/overview.md)
 - [Tài liệu cài đặt tiếng Việt](docs/vn/installation.md)
 

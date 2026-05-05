@@ -152,6 +152,7 @@ Common API:
 - `one_based()`, `zero_based()`, `first_node(first)`
 - `weight(value)`, `weighted(left, right)`
 - `bamboo()`, `star()`, `star(center)`, `random()`
+- `degree_limit(limit)` for random trees
 - `binary()`, `caterpillar(spine)`, `deep_recursion(branches)`
 - `shuffle()`
 
@@ -161,9 +162,9 @@ Example:
 auto edges = cp_stress_gen::Tree(10).weighted(1, 100).random().build(rng);
 ```
 
-Validation: invalid labels, centers, spine sizes, branch counts, and weight ranges throw.
+Validation: invalid labels, centers, spine sizes, branch counts, degree limits, non-random degree-limit use, and weight ranges throw.
 
-Limitations: degree-limited generation is documented as Phase 3 work; arbitrary tree families are not guaranteed.
+Limitations: degree limits currently apply only to `random()` trees; arbitrary tree families are not guaranteed.
 
 ### `Graph`
 
@@ -179,6 +180,7 @@ Common API:
 - `dag()`, `layered_dag(layers)`, `dense()`
 - `sparse_connected()`, `complete()`, `cycle()`, `path()`
 - `forest(components)`, `connected_components(k)`, `bipartite(left_size)`
+- `wheel()`, `grid(rows, cols)`, `complete_bipartite(left, right)`, `tournament()`
 - `shuffle()`
 
 Example:
@@ -187,7 +189,7 @@ Example:
 auto edges = cp_stress_gen::Graph(8).edges(12).dag().no_multi_edges().build(rng);
 ```
 
-Validation: impossible edge counts, invalid partitions, invalid layer counts, and incompatible directed modes throw.
+Validation: impossible edge counts, invalid partitions, invalid layer counts, invalid structure sizes, and incompatible directed modes throw.
 
 Limitations: advanced graph families and weighted shortest-path adversarial cases are intentionally deferred.
 
@@ -204,6 +206,10 @@ Common API:
 - `random_composite(left, right, rng)`
 - `coprime_pair(left, right, rng)`
 - `with_gcd(g, multiplier_left, multiplier_right, rng)`
+- `mod_pow(base, exponent, mod)`
+- `extended_gcd(a, b)`
+- `mod_inverse(value, mod)`
+- `factorize_trial(value)`
 
 Example:
 
@@ -211,7 +217,7 @@ Example:
 auto pair = cp_stress_gen::Math::with_gcd(6, 1, 20, rng);
 ```
 
-Validation: invalid ranges and impossible prime/composite/coprime requests throw.
+Validation: invalid ranges, impossible prime/composite/coprime requests, invalid modular parameters, and missing modular inverses throw.
 
 Limitations: primality and factor-related helpers use simple algorithms and do not target huge ranges.
 
@@ -227,6 +233,8 @@ Common API:
 - `Geometry::rectangle_boundary_points(count).rectangle(...)`
 - `Geometry::clustered_points(count).center(...).radius(...)`
 - `Geometry::duplicate_points(count).point(...)`
+- `Geometry::rectangle_polygon(x1, y1, x2, y2)`
+- `Geometry::triangle(a, b, c)`
 
 Example:
 
@@ -234,7 +242,7 @@ Example:
 auto points = cp_stress_gen::Geometry::points(9).rectangle(1, 1, 3, 3).unique().build(rng);
 ```
 
-Validation: invalid rectangles, impossible unique requests, invalid collinear steps, and negative cluster radii throw.
+Validation: invalid rectangles, impossible unique requests, invalid collinear steps, negative cluster radii, and degenerate simple polygons throw.
 
 Limitations: arbitrary convex polygon generation is not implemented.
 
@@ -245,9 +253,10 @@ Purpose: provide honest, safe pattern helpers for local stress testing.
 Common API:
 
 - `anti::SortKiller::reversed`, `nearly_sorted`, `many_duplicates`
-- `anti::TreeKiller::chain`, `star`, `chain_with_branches`
-- `anti::GraphKiller::dense`, `long_dag_chain`, `sparse_connected`
-- `anti::StringKiller::repeated`, `alternating`, `prefix_heavy`
+- `anti::SortKiller::organ_pipe`, `alternating_high_low`
+- `anti::TreeKiller::chain`, `star`, `chain_with_branches`, `broom`
+- `anti::GraphKiller::dense`, `long_dag_chain`, `sparse_connected`, `dense_dag`
+- `anti::StringKiller::repeated`, `alternating`, `prefix_heavy`, `kmp_prefix_pattern`
 
 Example:
 

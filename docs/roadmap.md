@@ -33,6 +33,26 @@
 | Done | Safe generator helpers | Add degree-limited trees, graph structures, math helpers, geometry shapes, and honest anti patterns. | New features are covered by assert tests with visible `[PASS]` output. |
 | Done | Structure examples | Add concise examples for Phase 3 helpers. | New examples compile with direct `g++`. |
 
+## Phase 4: Public Release Polish
+
+| Status | Task | Objective | Acceptance Criteria |
+| --- | --- | --- | --- |
+| Done | Release notes | Add initial public release notes. | `CHANGELOG.md` includes `0.1.0` unreleased notes. |
+| Done | Contribution guide | Document local setup, checks, and style rules. | `CONTRIBUTING.md` explains direct `g++` workflow. |
+| Done | Issue templates | Add structured bug and feature request forms. | GitHub issue template YAML files are present. |
+| Done | README badges | Show CI, license, and C++17 status. | Badges link to the existing workflow, license, and C++17 reference. |
+| Done | Release consistency | Review public docs for Phase 4 release readiness. | Docs avoid unsupported feature claims. |
+
+## Release Checklist
+
+- `scripts/check_all.ps1` passes locally.
+- GitHub Actions CI is green.
+- README badges and links render correctly.
+- `CHANGELOG.md` has the intended version section.
+- `LICENSE` is present and MIT.
+- No generated artifacts are committed.
+- Deferred work remains clearly marked.
+
 ## Deferred Work
 
 - GUI or IDE bridge for `TestSuite-Studio`.

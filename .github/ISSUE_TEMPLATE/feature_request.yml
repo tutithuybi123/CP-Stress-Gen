@@ -1,0 +1,55 @@
+name: Feature request
+description: Suggest a safe generator, helper, example, or documentation improvement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please keep feature requests aligned with the header-only C++17, no-dependency design.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should the feature help users do?
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: Describe the competitive programming or stress-testing scenario.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_api
+    attributes:
+      label: Proposed API
+      description: If applicable, show the fluent API or helper signature you expect.
+      render: cpp
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope and risk
+      options:
+        - Small safe helper
+        - Documentation or example only
+        - Needs design discussion
+        - Risky or adversarial feature
+    validations:
+      required: true
+  - type: textarea
+    id: tests_docs
+    attributes:
+      label: Tests and docs expectation
+      description: What tests or documentation should accompany this feature?
+    validations:
+      required: false
