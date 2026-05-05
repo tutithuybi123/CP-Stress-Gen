@@ -1,5 +1,9 @@
 #pragma once
 
+#include "anti/GraphKiller.hpp"
+#include "anti/SortKiller.hpp"
+#include "anti/StringKiller.hpp"
+#include "anti/TreeKiller.hpp"
 #include "core/Printer.hpp"
 #include "core/Random.hpp"
 #include "core/Validate.hpp"
