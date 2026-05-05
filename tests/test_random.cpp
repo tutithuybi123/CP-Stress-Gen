@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <iostream>
 #include <stdexcept>
 
 int main() {
@@ -40,5 +41,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_random\n";
     return 0;
 }

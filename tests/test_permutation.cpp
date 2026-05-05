@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 
@@ -68,5 +69,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_permutation\n";
     return 0;
 }

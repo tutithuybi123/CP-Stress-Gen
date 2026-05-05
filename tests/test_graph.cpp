@@ -1,6 +1,7 @@
 #include "cp_stress_gen.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <set>
 #include <stdexcept>
 #include <utility>
@@ -263,5 +264,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_graph\n";
     return 0;
 }

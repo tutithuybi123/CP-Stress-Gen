@@ -1,6 +1,7 @@
 #include "cp_stress_gen.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 
@@ -88,5 +89,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_math\n";
     return 0;
 }

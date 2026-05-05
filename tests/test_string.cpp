@@ -1,6 +1,7 @@
 #include "cp_stress_gen.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
@@ -84,5 +85,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_string\n";
     return 0;
 }

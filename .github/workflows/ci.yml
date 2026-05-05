@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  direct-gpp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show compiler
+        run: g++ --version
+
+      - name: Build tests
+        run: |
+          mkdir -p .tmp_build
+          for file in tests/*.cpp; do
+            name="$(basename "$file" .cpp)"
+            echo "[BUILD] $file"
+            g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude "$file" -o ".tmp_build/$name"
+          done
+          echo "[PASS] build_tests"
+
+      - name: Run tests
+        run: |
+          for file in tests/*.cpp; do
+            name="$(basename "$file" .cpp)"
+            echo "[RUN] $name"
+            ".tmp_build/$name"
+          done
+          echo "[PASS] run_tests"
+
+      - name: Build examples
+        run: |
+          for file in examples/*.cpp; do
+            name="$(basename "$file" .cpp)"
+            echo "[BUILD] $file"
+            g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude "$file" -o ".tmp_build/$name"
+          done
+          echo "[PASS] build_examples"

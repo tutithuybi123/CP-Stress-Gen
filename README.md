@@ -93,6 +93,14 @@ g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude tests/test_random.cpp -o .tmp_b
 .\.tmp_build\test_random.exe
 ```
 
+Run the full local check from PowerShell:
+
+```powershell
+.\scripts\check_all.ps1
+```
+
+The full check compiles all tests, runs all test executables, and compiles all examples using direct `g++` commands. GitHub Actions CI uses the same direct `g++` approach and does not use CMake.
+
 ## License
 
 MIT. See `LICENSE`.

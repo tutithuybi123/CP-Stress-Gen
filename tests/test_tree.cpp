@@ -1,6 +1,7 @@
 #include "cp_stress_gen.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <numeric>
 #include <stdexcept>
 #include <vector>
@@ -150,5 +151,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_tree\n";
     return 0;
 }

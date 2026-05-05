@@ -1,6 +1,7 @@
 #include "cp_stress_gen.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
@@ -61,5 +62,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_printer\n";
     return 0;
 }

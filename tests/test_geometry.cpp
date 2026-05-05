@@ -1,6 +1,7 @@
 #include "cp_stress_gen.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <set>
 #include <stdexcept>
 
@@ -92,5 +93,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_geometry\n";
     return 0;
 }

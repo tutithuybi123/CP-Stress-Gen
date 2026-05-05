@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 
@@ -76,5 +77,6 @@ int main() {
     }
     assert(thrown);
 
+    std::cout << "[PASS] test_array\n";
     return 0;
 }
