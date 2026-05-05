@@ -11,7 +11,7 @@
 
 ## Namespace
 
-All APIs use `cp_stress_gen`. Core helpers use `cp_stress_gen::core`.
+All APIs use `cp_stress_gen`. Core helpers use `cp_stress_gen::core`. Safe adversarial pattern helpers use `cp_stress_gen::anti`.
 
 ## Random Model
 
@@ -22,7 +22,7 @@ cp_stress_gen::core::Random rng(42);
 auto values = cp_stress_gen::Array(10).range(1, 100).build(rng);
 ```
 
-Avoid per-generator `seed()` and `seeded()` APIs in the current public batch. This keeps deterministic behavior easy to reason about and avoids competing random states.
+This keeps seeded behavior deterministic and avoids competing per-generator RNG state. Convenience `build()` overloads may use time-based randomness for quick examples, but tests and reproducible workflows should pass `Random&` explicitly.
 
 ## Fluent API
 
@@ -37,11 +37,11 @@ auto edges = cp_stress_gen::Graph(8)
     .build(rng);
 ```
 
-Invalid configurations should throw clear exceptions before producing output.
+Invalid configurations should throw before producing output.
 
 ## Edge Convention
 
-Tree and graph edge structs should expose predictable fields:
+Tree and graph edge structs expose predictable fields:
 
 ```cpp
 int u;
@@ -50,18 +50,19 @@ long long w;
 bool weighted;
 ```
 
-`weighted == false` means printers may emit only `u v`; `weighted == true` means printers emit `u v w`.
+`weighted == false` means printers emit `u v`; `weighted == true` means printers emit `u v w`.
 
 ## Validation Policy
 
 Use `cp_stress_gen::core::require` helpers for invalid configurations:
 
 - invalid ranges
-- impossible edge counts
+- impossible graph edge counts
 - invalid tree centers or partition sizes
+- invalid string alphabets or patterns
 - impossible unique point requests
 
-Prefer throwing `std::invalid_argument` over silently fixing the request.
+Prefer throwing `std::invalid_argument` over silently changing user intent.
 
 ## C++17 Compatibility
 
