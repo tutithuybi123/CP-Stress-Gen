@@ -88,7 +88,12 @@ Existing examples demonstrate individual modules:
 - `examples/anti_basic.cpp`
 - `examples/printer_basic.cpp`
 
-Phase 2 adds practical workflow examples for stress-test style generation, graph/tree suites, and batched test cases.
+Practical workflow examples:
+
+- `examples/stress_pair_basic.cpp`: in-process brute/optimized comparison skeleton.
+- `examples/testcase_batch.cpp`: prints multiple test cases in one stream.
+- `examples/graph_suite.cpp`: connected, DAG, bipartite, and dense graph generation.
+- `examples/tree_suite.cpp`: bamboo, star, random, caterpillar, and deep recursion trees.
 
 ## Development Checks
 
@@ -125,4 +130,3 @@ See `docs/roadmap.md`.
 ## License
 
 MIT. See `LICENSE`.
-
