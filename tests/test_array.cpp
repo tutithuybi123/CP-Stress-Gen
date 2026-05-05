@@ -8,6 +8,9 @@
 int main() {
     cp_stress_gen::core::Random rng(1);
 
+    assert(cp_stress_gen::Array(0).range(1, 10).build(rng).empty());
+    assert((cp_stress_gen::Array(1).iota(7).build(rng) == std::vector<long long>{7}));
+
     const auto values = cp_stress_gen::Array(100).range(-10, 10).build(rng);
     assert(values.size() == 100);
     for (const auto value : values) {
@@ -37,6 +40,10 @@ int main() {
     const auto blocky = cp_stress_gen::Array(7).blocky(3).build(rng);
     assert((blocky == std::vector<long long>{1, 1, 1, 2, 2, 2, 3}));
 
+    cp_stress_gen::core::Random same_a(77);
+    cp_stress_gen::core::Random same_b(77);
+    assert(cp_stress_gen::Array(20).almost_sorted(5).build(same_a) == cp_stress_gen::Array(20).almost_sorted(5).build(same_b));
+
     bool thrown = false;
     try {
         (void)cp_stress_gen::Array(3).range(5, 1);
@@ -48,6 +55,22 @@ int main() {
     thrown = false;
     try {
         (void)cp_stress_gen::Array(3).many_equal(0);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Array(3).almost_sorted(4);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Array(3).blocky(0);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

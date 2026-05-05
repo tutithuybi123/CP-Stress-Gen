@@ -7,6 +7,9 @@
 int main() {
     cp_stress_gen::core::Random rng(7);
 
+    assert(cp_stress_gen::Geometry::points(0).rectangle(0, 0, 0, 0).build(rng).empty());
+    assert(cp_stress_gen::Geometry::collinear(1).step(0, 0).build().size() == 1);
+
     const auto points = cp_stress_gen::Geometry::points(50).rectangle(-3, -4, 3, 4).build(rng);
     assert(points.size() == 50);
     for (const auto& point : points) {
@@ -45,7 +48,19 @@ int main() {
         assert(point.x == 4 && point.y == 7);
     }
 
+    cp_stress_gen::core::Random same_a(22);
+    cp_stress_gen::core::Random same_b(22);
+    assert(cp_stress_gen::Geometry::clustered_points(20).center(5, 5).radius(3).build(same_a) == cp_stress_gen::Geometry::clustered_points(20).center(5, 5).radius(3).build(same_b));
+
     bool thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::points(3).rectangle(3, 1, 2, 4);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
     try {
         (void)cp_stress_gen::Geometry::points(10).rectangle(1, 1, 2, 2).unique().build(rng);
     } catch (const std::invalid_argument&) {
@@ -56,6 +71,14 @@ int main() {
     thrown = false;
     try {
         (void)cp_stress_gen::Geometry::collinear(3).step(0, 0).build();
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::rectangle_boundary_points(3).rectangle(2, 0, 1, 0);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

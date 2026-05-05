@@ -53,9 +53,26 @@ static void assert_tree(const std::vector<cp_stress_gen::Tree::Edge>& edges, con
     }
 }
 
+static bool same_edges(
+    const std::vector<cp_stress_gen::Tree::Edge>& left,
+    const std::vector<cp_stress_gen::Tree::Edge>& right
+) {
+    if (left.size() != right.size()) {
+        return false;
+    }
+    for (std::size_t i = 0; i < left.size(); ++i) {
+        if (left[i].u != right[i].u || left[i].v != right[i].v || left[i].w != right[i].w || left[i].weighted != right[i].weighted) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main() {
     cp_stress_gen::core::Random rng(2);
 
+    assert_tree(cp_stress_gen::Tree(0).bamboo().build(rng), 0, 1);
+    assert_tree(cp_stress_gen::Tree(1).star().build(rng), 1, 1);
     assert_tree(cp_stress_gen::Tree(10).bamboo().build(rng), 10, 1);
     assert_tree(cp_stress_gen::Tree(10).star(3).build(rng), 10, 1);
     assert_tree(cp_stress_gen::Tree(10).random().build(rng), 10, 1);
@@ -70,9 +87,32 @@ int main() {
         assert(edge.w >= 5 && edge.w <= 8);
     }
 
+    cp_stress_gen::core::Random same_a(44);
+    cp_stress_gen::core::Random same_b(44);
+    assert(same_edges(
+        cp_stress_gen::Tree(15).weighted(2, 9).random().shuffle().build(same_a),
+        cp_stress_gen::Tree(15).weighted(2, 9).random().shuffle().build(same_b)
+    ));
+
     bool thrown = false;
     try {
         (void)cp_stress_gen::Tree(4).star(10).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(4).star(0).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(4).weighted(9, 2);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }
@@ -88,7 +128,23 @@ int main() {
 
     thrown = false;
     try {
+        (void)cp_stress_gen::Tree(4).caterpillar(5).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
         (void)cp_stress_gen::Tree(4).deep_recursion(4).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(4).deep_recursion(5).build(rng);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }
@@ -96,4 +152,3 @@ int main() {
 
     return 0;
 }
-

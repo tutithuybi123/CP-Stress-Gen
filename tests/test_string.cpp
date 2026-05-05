@@ -16,6 +16,9 @@ static bool contains_only(const std::string& value, const std::string& alphabet)
 int main() {
     cp_stress_gen::core::Random rng(4);
 
+    assert(cp_stress_gen::String(0).lowercase().build(rng).empty());
+    assert(cp_stress_gen::String(1).prefix_heavy('x', 'y').build(rng) == "y");
+
     const auto lower = cp_stress_gen::String(30).lowercase().build(rng);
     assert(lower.size() == 30);
     assert(contains_only(lower, "abcdefghijklmnopqrstuvwxyz"));
@@ -44,9 +47,22 @@ int main() {
     assert(cp_stress_gen::String(8).periodic("abc").build(rng) == "abcabcab");
     assert(cp_stress_gen::String(5).prefix_heavy('x', 'y').build(rng) == "xxxxy");
 
+    cp_stress_gen::core::Random same_a(88);
+    cp_stress_gen::core::Random same_b(88);
+    assert(cp_stress_gen::String(16).alphabet("abcd").palindrome().build(same_a) == cp_stress_gen::String(16).alphabet("abcd").palindrome().build(same_b));
+    assert(cp_stress_gen::String(16).alphabet("abcd").almost_palindrome(3).build(same_a) == cp_stress_gen::String(16).alphabet("abcd").almost_palindrome(3).build(same_b));
+
     bool thrown = false;
     try {
         (void)cp_stress_gen::String(3).alphabet("");
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::String(3).range('z', 'a');
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

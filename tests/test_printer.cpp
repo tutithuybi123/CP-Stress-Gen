@@ -1,5 +1,4 @@
-#include "core/Printer.hpp"
-#include "core/Validate.hpp"
+#include "cp_stress_gen.hpp"
 
 #include <cassert>
 #include <sstream>
@@ -23,6 +22,20 @@ int main() {
     printer.edges(std::vector<Edge>{{1, 2, 10, true}, {2, 3, 0, false}});
 
     assert(output.str() == "3 4 5\ncase 1\n7 8 9\n1 2 10\n2 3\n");
+
+    std::ostringstream tree_output;
+    cp_stress_gen::core::Printer(tree_output).edges(std::vector<cp_stress_gen::Tree::Edge>{
+        cp_stress_gen::Tree::Edge{1, 2, 5, true},
+        cp_stress_gen::Tree::Edge{2, 3, 1, false}
+    });
+    assert(tree_output.str() == "1 2 5\n2 3\n");
+
+    std::ostringstream graph_output;
+    cp_stress_gen::core::Printer(graph_output).edges(std::vector<cp_stress_gen::Graph::Edge>{
+        cp_stress_gen::Graph::Edge{0, 1, 9, true},
+        cp_stress_gen::Graph::Edge{1, 2, 1, false}
+    });
+    assert(graph_output.str() == "0 1 9\n1 2\n");
 
     bool thrown = false;
     try {
@@ -50,4 +63,3 @@ int main() {
 
     return 0;
 }
-

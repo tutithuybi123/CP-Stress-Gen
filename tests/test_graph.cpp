@@ -4,6 +4,7 @@
 #include <set>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 static std::pair<int, int> key(const cp_stress_gen::Graph::Edge& edge, const bool directed) {
     if (directed || edge.u < edge.v) {
@@ -21,8 +22,28 @@ static void assert_no_duplicate_edges(const std::vector<cp_stress_gen::Graph::Ed
     }
 }
 
+static bool same_edges(
+    const std::vector<cp_stress_gen::Graph::Edge>& left,
+    const std::vector<cp_stress_gen::Graph::Edge>& right
+) {
+    if (left.size() != right.size()) {
+        return false;
+    }
+    for (std::size_t i = 0; i < left.size(); ++i) {
+        if (left[i].u != right[i].u || left[i].v != right[i].v || left[i].w != right[i].w || left[i].weighted != right[i].weighted) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main() {
     cp_stress_gen::core::Random rng(3);
+
+    assert(cp_stress_gen::Graph(0).edges(0).build(rng).empty());
+    assert(cp_stress_gen::Graph(0).forest(0).build(rng).empty());
+    assert(cp_stress_gen::Graph(1).path().build(rng).empty());
+    assert(cp_stress_gen::Graph(1).complete().build(rng).empty());
 
     const auto dag = cp_stress_gen::Graph(8).edges(12).directed().dag().no_multi_edges().build(rng);
     assert(dag.size() == 12);
@@ -83,7 +104,38 @@ int main() {
         assert(edge.w >= 2 && edge.w <= 4);
     }
 
+    cp_stress_gen::core::Random same_a(33);
+    cp_stress_gen::core::Random same_b(33);
+    assert(same_edges(
+        cp_stress_gen::Graph(8).edges(7).connected_components(2).weighted(1, 5).shuffle().build(same_a),
+        cp_stress_gen::Graph(8).edges(7).connected_components(2).weighted(1, 5).shuffle().build(same_b)
+    ));
+
     bool thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(2).edges(1).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(!thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(0).edges(1).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(3).edges(7).directed().no_multi_edges().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
     try {
         (void)cp_stress_gen::Graph(3).edges(4).undirected().no_multi_edges().build(rng);
     } catch (const std::invalid_argument&) {
@@ -93,7 +145,55 @@ int main() {
 
     thrown = false;
     try {
+        (void)cp_stress_gen::Graph(3).edges(4).dag().no_multi_edges().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(3).layered_dag(1).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
         (void)cp_stress_gen::Graph(5).bipartite(5).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(4).edges(5).bipartite(2).no_multi_edges().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(4).edges(5).complete().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(4).edges(3).cycle().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(2).cycle().build(rng);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }
@@ -117,7 +217,47 @@ int main() {
 
     thrown = false;
     try {
+        (void)cp_stress_gen::Graph(0).forest(1).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).edges(4).forest(2).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).forest(2).directed().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
         (void)cp_stress_gen::Graph(5).edges(1).connected_components(2).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).edges(99).connected_components(2).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).connected_components(2).directed().build(rng);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

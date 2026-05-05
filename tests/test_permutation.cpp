@@ -16,6 +16,9 @@ static void assert_permutation(std::vector<int> values, const int first) {
 int main() {
     cp_stress_gen::core::Random rng(5);
 
+    assert(cp_stress_gen::Permutation(0).build(rng).empty());
+    assert((cp_stress_gen::Permutation(1).zero_based().build(rng) == std::vector<int>{0}));
+
     const auto shuffled = cp_stress_gen::Permutation(20).shuffle().build(rng);
     assert_permutation(shuffled, 1);
 
@@ -37,9 +40,21 @@ int main() {
     const auto blocks = cp_stress_gen::Permutation(7).blocks(3).build(rng);
     assert((blocks == std::vector<int>{3, 2, 1, 6, 5, 4, 7}));
 
+    cp_stress_gen::core::Random same_a(55);
+    cp_stress_gen::core::Random same_b(55);
+    assert(cp_stress_gen::Permutation(20).few_swaps(6).build(same_a) == cp_stress_gen::Permutation(20).few_swaps(6).build(same_b));
+
     bool thrown = false;
     try {
         (void)cp_stress_gen::Permutation(3).almost_sorted(4).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Permutation(3).few_swaps(4).build(rng);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

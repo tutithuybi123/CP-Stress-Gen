@@ -32,6 +32,13 @@ int main() {
     }
     assert(thrown);
 
+    thrown = false;
+    try {
+        (void)rng.real<double>(3.0, 2.0);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
     return 0;
 }
-
