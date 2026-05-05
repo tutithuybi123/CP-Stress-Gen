@@ -2,9 +2,9 @@
 
 #include <array>
 #include <chrono>
-#include <concepts>
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <type_traits>
 
 namespace cp_stress_gen::core {
@@ -16,7 +16,7 @@ public:
     static constexpr result_type min() noexcept { return 0; }
     static constexpr result_type max() noexcept { return std::numeric_limits<result_type>::max(); }
 
-    constexpr explicit Random(result_type seed_value = default_seed_value) noexcept {
+    constexpr explicit Random(const result_type seed_value = default_seed_value) noexcept {
         seed(seed_value);
     }
 
@@ -27,7 +27,7 @@ public:
         return Random(now ^ 0x9E3779B97F4A7C15ull);
     }
 
-    constexpr void seed(result_type seed_value) noexcept {
+    constexpr void seed(const result_type seed_value) noexcept {
         SplitMix64 mixer(seed_value);
         state_[0] = mixer.next();
         state_[1] = mixer.next();
@@ -58,15 +58,13 @@ public:
         return static_cast<std::uint32_t>(next_u64() >> 32);
     }
 
-    template <std::integral Int>
-    [[nodiscard]] constexpr Int integer(Int left, Int right) noexcept {
+    template <typename Int, typename std::enable_if<std::is_integral<Int>::value, int>::type = 0>
+    [[nodiscard]] Int integer(const Int left, const Int right) {
         if (right < left) {
-            const Int tmp = left;
-            left = right;
-            right = tmp;
+            throw std::invalid_argument("Random::integer requires left <= right");
         }
 
-        using Unsigned = std::make_unsigned_t<Int>;
+        using Unsigned = typename std::make_unsigned<Int>::type;
         const Unsigned lo = static_cast<Unsigned>(left);
         const Unsigned width = static_cast<Unsigned>(static_cast<Unsigned>(right) - lo);
 
@@ -74,20 +72,18 @@ public:
             return static_cast<Int>(next_unsigned<Unsigned>());
         }
 
-        return static_cast<Int>(lo + bounded_unsigned<Unsigned>(width + Unsigned{1}));
+        return static_cast<Int>(lo + bounded_unsigned<Unsigned>(static_cast<Unsigned>(width + Unsigned{1})));
     }
 
-    template <std::floating_point Real = double>
-    [[nodiscard]] constexpr Real real() noexcept {
+    template <typename Real = double, typename std::enable_if<std::is_floating_point<Real>::value, int>::type = 0>
+    [[nodiscard]] Real real() noexcept {
         return static_cast<Real>((next_u64() >> 11) * inv_two_pow_53);
     }
 
-    template <std::floating_point Real>
-    [[nodiscard]] constexpr Real real(Real left, Real right) noexcept {
+    template <typename Real, typename std::enable_if<std::is_floating_point<Real>::value, int>::type = 0>
+    [[nodiscard]] Real real(const Real left, const Real right) {
         if (right < left) {
-            const Real tmp = left;
-            left = right;
-            right = tmp;
+            throw std::invalid_argument("Random::real requires left <= right");
         }
         return left + (right - left) * real<Real>();
     }
@@ -96,7 +92,7 @@ public:
         return (next_u64() & 1ull) != 0;
     }
 
-    [[nodiscard]] constexpr bool boolean(const double probability_true) noexcept {
+    [[nodiscard]] bool boolean(const double probability_true) noexcept {
         if (probability_true <= 0.0) {
             return false;
         }
@@ -149,8 +145,8 @@ private:
         return (x << k) | (x >> (64 - k));
     }
 
-    template <std::unsigned_integral Unsigned>
-    [[nodiscard]] constexpr Unsigned next_unsigned() noexcept {
+    template <typename Unsigned>
+    [[nodiscard]] typename std::enable_if<std::is_unsigned<Unsigned>::value, Unsigned>::type next_unsigned() noexcept {
         if constexpr (sizeof(Unsigned) <= sizeof(std::uint32_t)) {
             return static_cast<Unsigned>(next_u32());
         } else {
@@ -158,8 +154,9 @@ private:
         }
     }
 
-    template <std::unsigned_integral Unsigned>
-    [[nodiscard]] constexpr Unsigned bounded_unsigned(const Unsigned bound) noexcept {
+    template <typename Unsigned>
+    [[nodiscard]] typename std::enable_if<std::is_unsigned<Unsigned>::value, Unsigned>::type
+    bounded_unsigned(const Unsigned bound) noexcept {
         if (bound <= Unsigned{1}) {
             return Unsigned{0};
         }
@@ -201,3 +198,4 @@ private:
 using Xoshiro256StarStar = Random;
 
 } // namespace cp_stress_gen::core
+

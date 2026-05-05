@@ -1,11 +1,12 @@
 #pragma once
 
 #include "../core/Random.hpp"
+#include "../core/Validate.hpp"
 
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <ranges>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -14,91 +15,121 @@ namespace cp_stress_gen {
 class Graph {
 public:
     using node_type = int;
-    using edge_type = std::pair<node_type, node_type>;
+    using weight_type = long long;
     using size_type = std::size_t;
 
-    explicit Graph(const size_type nodes)
-        : nodes_(nodes), random_(core::Random::from_time()) {}
+    struct Edge {
+        node_type u;
+        node_type v;
+        weight_type w;
+        bool weighted;
+    };
 
-    Graph(const size_type nodes, const std::uint64_t seed)
-        : nodes_(nodes), random_(seed) {}
+    using edge_type = Edge;
 
-    Graph(const size_type nodes, core::Random random) noexcept
-        : nodes_(nodes), random_(random) {}
+    explicit Graph(const size_type nodes) : nodes_(nodes) {}
 
-    [[nodiscard]] static Graph seeded(const size_type nodes, const std::uint64_t seed) {
-        return Graph(nodes, seed);
-    }
+    Graph(const size_type nodes, const size_type edge_count) : nodes_(nodes), requested_edges_(edge_count), has_edges_(true) {}
 
-    Graph& seed(const std::uint64_t seed_value) noexcept {
-        random_.seed(seed_value);
+    Graph& first_node(const node_type first) noexcept {
+        first_ = first;
         return *this;
     }
 
-    Graph& bamboo(const node_type first = 1) {
-        edges_.clear();
-        if (nodes_ < 2) {
-            return *this;
-        }
+    Graph& one_based() noexcept {
+        return first_node(1);
+    }
 
-        edges_.reserve(nodes_ - 1);
-        for (const size_type i : std::views::iota(size_type{0}, nodes_ - 1)) {
-            const auto u = static_cast<node_type>(first + static_cast<node_type>(i));
-            edges_.emplace_back(u, static_cast<node_type>(u + 1));
-        }
+    Graph& zero_based() noexcept {
+        return first_node(0);
+    }
+
+    Graph& edges(const size_type count) noexcept {
+        requested_edges_ = count;
+        has_edges_ = true;
         return *this;
     }
 
-    Graph& star(const node_type center = 1, const node_type first = 1) {
-        edges_.clear();
-        if (nodes_ < 2) {
-            return *this;
-        }
-
-        const node_type root = normalized_center(center, first);
-        edges_.reserve(nodes_ - 1);
-        for (const size_type i : std::views::iota(size_type{0}, nodes_)) {
-            const auto v = static_cast<node_type>(first + static_cast<node_type>(i));
-            if (v != root) {
-                edges_.emplace_back(root, v);
-            }
-        }
+    Graph& directed() noexcept {
+        directed_ = true;
         return *this;
     }
 
-    Graph& dag(const size_type edge_count, const node_type first = 1) {
-        edges_.clear();
-        if (nodes_ < 2 || edge_count == 0) {
-            return *this;
-        }
+    Graph& undirected() noexcept {
+        directed_ = false;
+        return *this;
+    }
 
-        const size_type limit = clamped_dag_edges(edge_count);
-        edges_.reserve(limit);
+    Graph& no_multi_edges() noexcept {
+        no_multi_edges_ = true;
+        return *this;
+    }
 
-        const auto max_source = static_cast<node_type>(nodes_ - 2);
-        for ([[maybe_unused]] const size_type _ : std::views::iota(size_type{0}, limit)) {
-            const auto u_offset = random_.integer<node_type>(0, max_source);
-            const auto v_offset = random_.integer<node_type>(
-                static_cast<node_type>(u_offset + 1),
-                static_cast<node_type>(nodes_ - 1)
-            );
-            edges_.emplace_back(
-                static_cast<node_type>(first + u_offset),
-                static_cast<node_type>(first + v_offset)
-            );
-        }
+    Graph& allow_multi_edges() noexcept {
+        no_multi_edges_ = false;
+        return *this;
+    }
+
+    Graph& weight(const weight_type value) noexcept {
+        weighted_ = true;
+        weight_left_ = value;
+        weight_right_ = value;
+        return *this;
+    }
+
+    Graph& weighted(const weight_type left, const weight_type right) {
+        core::require_range(left, right, "Graph::weighted requires left <= right");
+        weighted_ = true;
+        weight_left_ = left;
+        weight_right_ = right;
+        return *this;
+    }
+
+    Graph& dag() noexcept {
+        mode_ = Mode::Dag;
+        directed_ = true;
+        return *this;
+    }
+
+    Graph& layered_dag(const size_type layers) noexcept {
+        mode_ = Mode::LayeredDag;
+        layers_ = layers;
+        directed_ = true;
+        return *this;
+    }
+
+    Graph& dense() noexcept {
+        mode_ = Mode::Dense;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
+    Graph& sparse_connected() noexcept {
+        mode_ = Mode::SparseConnected;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
+    Graph& complete() noexcept {
+        mode_ = Mode::Complete;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
+    Graph& cycle() noexcept {
+        mode_ = Mode::Cycle;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
+    Graph& bipartite(const size_type left_size) noexcept {
+        mode_ = Mode::Bipartite;
+        left_part_ = left_size;
         return *this;
     }
 
     Graph& shuffle() noexcept {
-        if (edges_.size() < 2) {
-            return *this;
-        }
-
-        for (size_type i = edges_.size() - 1; i > 0; --i) {
-            const size_type j = random_.integer<size_type>(0, i);
-            std::swap(edges_[i], edges_[j]);
-        }
+        shuffle_ = true;
         return *this;
     }
 
@@ -106,42 +137,319 @@ public:
         return nodes_;
     }
 
-    [[nodiscard]] size_type edges_count() const noexcept {
-        return edges_.size();
+    [[nodiscard]] std::vector<edge_type> build(core::Random& rng) const {
+        validate_labels();
+
+        std::vector<edge_type> result;
+        if (mode_ == Mode::Dag) {
+            generate_dag(result, rng);
+        } else if (mode_ == Mode::LayeredDag) {
+            generate_layered_dag(result, rng);
+        } else if (mode_ == Mode::Dense) {
+            generate_dense(result, rng);
+        } else if (mode_ == Mode::SparseConnected) {
+            generate_sparse_connected(result, rng);
+        } else if (mode_ == Mode::Complete) {
+            generate_complete(result, rng);
+        } else if (mode_ == Mode::Cycle) {
+            generate_cycle(result, rng);
+        } else if (mode_ == Mode::Bipartite) {
+            generate_bipartite(result, rng);
+        } else {
+            generate_general(result, rng);
+        }
+
+        if (shuffle_) {
+            shuffle_edges(result, rng);
+        }
+        return result;
     }
 
-    [[nodiscard]] const std::vector<edge_type>& view() const noexcept {
-        return edges_;
-    }
-
-    [[nodiscard]] std::vector<edge_type> build() const& {
-        return edges_;
-    }
-
-    [[nodiscard]] std::vector<edge_type> build() && noexcept {
-        return std::move(edges_);
+    [[nodiscard]] std::vector<edge_type> build() const {
+        core::Random rng = core::Random::from_time();
+        return build(rng);
     }
 
 private:
-    size_type nodes_;
-    std::vector<edge_type> edges_;
-    core::Random random_;
+    enum class Mode {
+        General,
+        Dag,
+        LayeredDag,
+        Dense,
+        SparseConnected,
+        Complete,
+        Cycle,
+        Bipartite
+    };
 
-    [[nodiscard]] size_type clamped_dag_edges(const size_type requested) const noexcept {
-        const auto n = static_cast<std::uint64_t>(nodes_);
-        const auto maximum = static_cast<std::uint64_t>(n * (n - 1) / 2);
-        const auto limited = std::min<std::uint64_t>(requested, maximum);
-        return static_cast<size_type>(limited);
+    size_type nodes_;
+    size_type requested_edges_{0};
+    bool has_edges_{false};
+    node_type first_{1};
+    bool directed_{false};
+    bool no_multi_edges_{false};
+    bool weighted_{false};
+    weight_type weight_left_{1};
+    weight_type weight_right_{1};
+    size_type layers_{0};
+    size_type left_part_{0};
+    bool shuffle_{false};
+    Mode mode_{Mode::General};
+
+    void validate_labels() const {
+        if (nodes_ == 0) {
+            return;
+        }
+        core::require(nodes_ <= static_cast<size_type>(2147483647), "Graph node count exceeds int label capacity");
+        (void)label(nodes_ - 1);
     }
 
-    [[nodiscard]] node_type normalized_center(const node_type center, const node_type first) const noexcept {
-        const auto last = static_cast<node_type>(first + static_cast<node_type>(nodes_ - 1));
-        if (center < first || center > last) {
-            return first;
+    [[nodiscard]] node_type label(const size_type offset) const noexcept {
+        return static_cast<node_type>(first_ + static_cast<node_type>(offset));
+    }
+
+    [[nodiscard]] weight_type next_weight(core::Random& rng) const {
+        return weighted_ ? rng.integer<weight_type>(weight_left_, weight_right_) : weight_type{1};
+    }
+
+    [[nodiscard]] edge_type make_edge(const size_type u, const size_type v, core::Random& rng) const {
+        return Edge{label(u), label(v), next_weight(rng), weighted_};
+    }
+
+    [[nodiscard]] std::uint64_t max_directed_edges() const noexcept {
+        const std::uint64_t n = static_cast<std::uint64_t>(nodes_);
+        return n * (n - 1);
+    }
+
+    [[nodiscard]] std::uint64_t max_undirected_edges() const noexcept {
+        const std::uint64_t n = static_cast<std::uint64_t>(nodes_);
+        return n * (n - 1) / 2;
+    }
+
+    [[nodiscard]] std::uint64_t max_current_edges() const noexcept {
+        return directed_ ? max_directed_edges() : max_undirected_edges();
+    }
+
+    [[nodiscard]] size_type requested_or_default(const std::uint64_t maximum, const size_type fallback, const char* name) const {
+        const std::uint64_t count = has_edges_ ? static_cast<std::uint64_t>(requested_edges_) : static_cast<std::uint64_t>(fallback);
+        core::require(count <= maximum, std::string(name) + " requested edge count is impossible");
+        return static_cast<size_type>(count);
+    }
+
+    [[nodiscard]] size_type requested_or_default_unbounded(const size_type fallback) const noexcept {
+        return has_edges_ ? requested_edges_ : fallback;
+    }
+
+    void add_unique_undirected(std::vector<edge_type>& result, const size_type count, core::Random& rng) const {
+        result.reserve(count);
+        for (size_type u = 0; u + 1 < nodes_ && result.size() < count; ++u) {
+            for (size_type v = u + 1; v < nodes_ && result.size() < count; ++v) {
+                result.push_back(make_edge(u, v, rng));
+            }
         }
-        return center;
+    }
+
+    void add_unique_directed(std::vector<edge_type>& result, const size_type count, core::Random& rng) const {
+        result.reserve(count);
+        for (size_type u = 0; u < nodes_ && result.size() < count; ++u) {
+            for (size_type v = 0; v < nodes_ && result.size() < count; ++v) {
+                if (u != v) {
+                    result.push_back(make_edge(u, v, rng));
+                }
+            }
+        }
+    }
+
+    void generate_general(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(nodes_ >= 2 || !has_edges_ || requested_edges_ == 0, "Graph needs at least 2 nodes for edges");
+        if (no_multi_edges_) {
+            const size_type count = requested_or_default(max_current_edges(), 0, "Graph");
+            if (directed_) {
+                add_unique_directed(result, count, rng);
+            } else {
+                add_unique_undirected(result, count, rng);
+            }
+            return;
+        }
+
+        const size_type count = requested_or_default_unbounded(0);
+        result.reserve(count);
+        for (size_type i = 0; i < count; ++i) {
+            size_type u = rng.integer<size_type>(0, nodes_ - 1);
+            size_type v = rng.integer<size_type>(0, nodes_ - 2);
+            if (v >= u) {
+                ++v;
+            }
+            if (!directed_ && v < u) {
+                std::swap(u, v);
+            }
+            result.push_back(make_edge(u, v, rng));
+        }
+    }
+
+    void generate_dag(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(nodes_ >= 2 || !has_edges_ || requested_edges_ == 0, "Graph::dag needs at least 2 nodes for edges");
+        const size_type fallback = nodes_ > 0 ? nodes_ - 1 : 0;
+        const size_type count = no_multi_edges_
+            ? requested_or_default(max_undirected_edges(), fallback, "Graph::dag")
+            : requested_or_default_unbounded(fallback);
+
+        result.reserve(count);
+        if (no_multi_edges_) {
+            for (size_type u = 0; u + 1 < nodes_ && result.size() < count; ++u) {
+                for (size_type v = u + 1; v < nodes_ && result.size() < count; ++v) {
+                    result.push_back(make_edge(u, v, rng));
+                }
+            }
+            return;
+        }
+
+        for (size_type i = 0; i < count; ++i) {
+            const size_type u = rng.integer<size_type>(0, nodes_ - 2);
+            const size_type v = rng.integer<size_type>(u + 1, nodes_ - 1);
+            result.push_back(make_edge(u, v, rng));
+        }
+    }
+
+    void generate_layered_dag(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(nodes_ >= 2 || !has_edges_ || requested_edges_ == 0, "Graph::layered_dag needs at least 2 nodes for edges");
+        core::require(layers_ >= 2 && layers_ <= nodes_, "Graph::layered_dag layers must be in [2, n]");
+
+        std::vector<size_type> layer_of(nodes_);
+        for (size_type i = 0; i < nodes_; ++i) {
+            layer_of[i] = i * layers_ / nodes_;
+        }
+
+        std::uint64_t maximum = 0;
+        for (size_type u = 0; u < nodes_; ++u) {
+            for (size_type v = 0; v < nodes_; ++v) {
+                if (layer_of[u] < layer_of[v]) {
+                    ++maximum;
+                }
+            }
+        }
+
+        const size_type fallback = static_cast<size_type>(maximum);
+        const size_type count = no_multi_edges_
+            ? requested_or_default(maximum, fallback, "Graph::layered_dag")
+            : requested_or_default_unbounded(fallback);
+        result.reserve(count);
+        if (no_multi_edges_) {
+            for (size_type u = 0; u < nodes_ && result.size() < count; ++u) {
+                for (size_type v = 0; v < nodes_ && result.size() < count; ++v) {
+                    if (layer_of[u] < layer_of[v]) {
+                        result.push_back(make_edge(u, v, rng));
+                    }
+                }
+            }
+            return;
+        }
+
+        std::vector<std::pair<size_type, size_type>> pairs;
+        pairs.reserve(static_cast<size_type>(maximum));
+        for (size_type u = 0; u < nodes_; ++u) {
+            for (size_type v = 0; v < nodes_; ++v) {
+                if (layer_of[u] < layer_of[v]) {
+                    pairs.push_back(std::make_pair(u, v));
+                }
+            }
+        }
+        core::require(!pairs.empty() || count == 0, "Graph::layered_dag has no valid layer-crossing edges");
+        for (size_type i = 0; i < count; ++i) {
+            const size_type index = rng.integer<size_type>(0, pairs.size() - 1);
+            result.push_back(make_edge(pairs[index].first, pairs[index].second, rng));
+        }
+    }
+
+    void generate_dense(std::vector<edge_type>& result, core::Random& rng) const {
+        const std::uint64_t maximum = max_current_edges();
+        const size_type fallback = static_cast<size_type>((maximum * 3 + 3) / 4);
+        const size_type count = requested_or_default(maximum, fallback, "Graph::dense");
+        if (directed_) {
+            add_unique_directed(result, count, rng);
+        } else {
+            add_unique_undirected(result, count, rng);
+        }
+    }
+
+    void generate_sparse_connected(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(!directed_, "Graph::sparse_connected currently supports undirected graphs only");
+        core::require(nodes_ >= 1, "Graph::sparse_connected needs at least one node");
+        const size_type minimum = nodes_ > 0 ? nodes_ - 1 : 0;
+        const size_type count = requested_or_default(max_undirected_edges(), minimum, "Graph::sparse_connected");
+        core::require(count >= minimum, "Graph::sparse_connected needs at least n - 1 edges");
+
+        result.reserve(count);
+        for (size_type i = 0; i + 1 < nodes_; ++i) {
+            result.push_back(make_edge(i, i + 1, rng));
+        }
+        for (size_type u = 0; u + 1 < nodes_ && result.size() < count; ++u) {
+            for (size_type v = u + 2; v < nodes_ && result.size() < count; ++v) {
+                result.push_back(make_edge(u, v, rng));
+            }
+        }
+    }
+
+    void generate_complete(std::vector<edge_type>& result, core::Random& rng) const {
+        const size_type count = static_cast<size_type>(max_current_edges());
+        if (has_edges_) {
+            core::require(requested_edges_ == count, "Graph::complete edge count must equal the complete graph size");
+        }
+        if (directed_) {
+            add_unique_directed(result, count, rng);
+        } else {
+            add_unique_undirected(result, count, rng);
+        }
+    }
+
+    void generate_cycle(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(nodes_ >= 3, "Graph::cycle needs at least 3 nodes");
+        if (has_edges_) {
+            core::require(requested_edges_ == nodes_, "Graph::cycle edge count must equal n");
+        }
+        result.reserve(nodes_);
+        for (size_type i = 0; i + 1 < nodes_; ++i) {
+            result.push_back(make_edge(i, i + 1, rng));
+        }
+        result.push_back(make_edge(nodes_ - 1, 0, rng));
+    }
+
+    void generate_bipartite(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(left_part_ > 0 && left_part_ < nodes_, "Graph::bipartite left size must be in [1, n - 1]");
+        const size_type right_part = nodes_ - left_part_;
+        const std::uint64_t maximum = static_cast<std::uint64_t>(left_part_) * right_part;
+        const size_type fallback = static_cast<size_type>(maximum);
+        const size_type count = no_multi_edges_
+            ? requested_or_default(maximum, fallback, "Graph::bipartite")
+            : requested_or_default_unbounded(fallback);
+
+        result.reserve(count);
+        if (no_multi_edges_) {
+            for (size_type u = 0; u < left_part_ && result.size() < count; ++u) {
+                for (size_type v = left_part_; v < nodes_ && result.size() < count; ++v) {
+                    result.push_back(make_edge(u, v, rng));
+                }
+            }
+            return;
+        }
+
+        for (size_type i = 0; i < count; ++i) {
+            const size_type u = rng.integer<size_type>(0, left_part_ - 1);
+            const size_type v = rng.integer<size_type>(left_part_, nodes_ - 1);
+            result.push_back(make_edge(u, v, rng));
+        }
+    }
+
+    static void shuffle_edges(std::vector<edge_type>& result, core::Random& rng) {
+        if (result.size() < 2) {
+            return;
+        }
+
+        for (size_type i = result.size() - 1; i > 0; --i) {
+            const size_type j = rng.integer<size_type>(0, i);
+            std::swap(result[i], result[j]);
+        }
     }
 };
 
 } // namespace cp_stress_gen
-

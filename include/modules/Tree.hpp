@@ -1,11 +1,10 @@
 #pragma once
 
 #include "../core/Random.hpp"
+#include "../core/Validate.hpp"
 
 #include <algorithm>
 #include <cstddef>
-#include <cstdint>
-#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -14,85 +13,90 @@ namespace cp_stress_gen {
 class Tree {
 public:
     using node_type = int;
-    using edge_type = std::pair<node_type, node_type>;
+    using weight_type = long long;
     using size_type = std::size_t;
 
-    explicit Tree(const size_type nodes)
-        : nodes_(nodes), random_(core::Random::from_time()) {}
+    struct Edge {
+        node_type u;
+        node_type v;
+        weight_type w;
+        bool weighted;
+    };
 
-    Tree(const size_type nodes, const std::uint64_t seed)
-        : nodes_(nodes), random_(seed) {}
+    using edge_type = Edge;
 
-    Tree(const size_type nodes, core::Random random) noexcept
-        : nodes_(nodes), random_(random) {}
+    explicit Tree(const size_type nodes) : nodes_(nodes) {}
 
-    [[nodiscard]] static Tree seeded(const size_type nodes, const std::uint64_t seed) {
-        return Tree(nodes, seed);
-    }
-
-    Tree& seed(const std::uint64_t seed_value) noexcept {
-        random_.seed(seed_value);
+    Tree& first_node(const node_type first) noexcept {
+        first_ = first;
         return *this;
     }
 
-    Tree& bamboo(const node_type first = 1) {
-        edges_.clear();
-        if (nodes_ < 2) {
-            return *this;
-        }
+    Tree& one_based() noexcept {
+        return first_node(1);
+    }
 
-        edges_.reserve(nodes_ - 1);
-        for (const size_type i : std::views::iota(size_type{0}, nodes_ - 1)) {
-            const auto u = static_cast<node_type>(first + static_cast<node_type>(i));
-            edges_.emplace_back(u, static_cast<node_type>(u + 1));
-        }
+    Tree& zero_based() noexcept {
+        return first_node(0);
+    }
+
+    Tree& weight(const weight_type value) noexcept {
+        weighted_ = true;
+        weight_left_ = value;
+        weight_right_ = value;
         return *this;
     }
 
-    Tree& star(const node_type center = 1, const node_type first = 1) {
-        edges_.clear();
-        if (nodes_ < 2) {
-            return *this;
-        }
-
-        const node_type root = normalized_center(center, first);
-        edges_.reserve(nodes_ - 1);
-        for (const size_type i : std::views::iota(size_type{0}, nodes_)) {
-            const auto v = static_cast<node_type>(first + static_cast<node_type>(i));
-            if (v != root) {
-                edges_.emplace_back(root, v);
-            }
-        }
+    Tree& weighted(const weight_type left, const weight_type right) {
+        core::require_range(left, right, "Tree::weighted requires left <= right");
+        weighted_ = true;
+        weight_left_ = left;
+        weight_right_ = right;
         return *this;
     }
 
-    Tree& random(const node_type first = 1) {
-        edges_.clear();
-        if (nodes_ < 2) {
-            return *this;
-        }
+    Tree& bamboo() noexcept {
+        mode_ = Mode::Bamboo;
+        return *this;
+    }
 
-        edges_.reserve(nodes_ - 1);
-        for (const size_type i : std::views::iota(size_type{1}, nodes_)) {
-            const auto v = static_cast<node_type>(first + static_cast<node_type>(i));
-            const auto parent = random_.integer<node_type>(
-                first,
-                static_cast<node_type>(first + static_cast<node_type>(i) - 1)
-            );
-            edges_.emplace_back(parent, v);
-        }
+    Tree& star() noexcept {
+        mode_ = Mode::Star;
+        has_center_ = false;
+        return *this;
+    }
+
+    Tree& star(const node_type center) noexcept {
+        mode_ = Mode::Star;
+        center_ = center;
+        has_center_ = true;
+        return *this;
+    }
+
+    Tree& random() noexcept {
+        mode_ = Mode::Random;
+        return *this;
+    }
+
+    Tree& binary() noexcept {
+        mode_ = Mode::Binary;
+        return *this;
+    }
+
+    Tree& caterpillar(const size_type spine) noexcept {
+        mode_ = Mode::Caterpillar;
+        spine_ = spine;
+        return *this;
+    }
+
+    Tree& deep_recursion(const size_type branches = 0) noexcept {
+        mode_ = Mode::DeepRecursion;
+        branches_ = branches;
         return *this;
     }
 
     Tree& shuffle() noexcept {
-        if (edges_.size() < 2) {
-            return *this;
-        }
-
-        for (size_type i = edges_.size() - 1; i > 0; --i) {
-            const size_type j = random_.integer<size_type>(0, i);
-            std::swap(edges_[i], edges_[j]);
-        }
+        shuffle_ = true;
         return *this;
     }
 
@@ -100,33 +104,148 @@ public:
         return nodes_;
     }
 
-    [[nodiscard]] size_type edges_count() const noexcept {
-        return edges_.size();
+    [[nodiscard]] std::vector<edge_type> build(core::Random& rng) const {
+        validate_common();
+
+        std::vector<edge_type> result;
+        if (nodes_ < 2) {
+            return result;
+        }
+
+        result.reserve(nodes_ - 1);
+        if (mode_ == Mode::Bamboo) {
+            generate_bamboo(result, rng);
+        } else if (mode_ == Mode::Star) {
+            generate_star(result, rng);
+        } else if (mode_ == Mode::Random) {
+            generate_random(result, rng);
+        } else if (mode_ == Mode::Binary) {
+            generate_binary(result, rng);
+        } else if (mode_ == Mode::Caterpillar) {
+            generate_caterpillar(result, rng);
+        } else {
+            generate_deep_recursion(result, rng);
+        }
+
+        if (shuffle_) {
+            shuffle_edges(result, rng);
+        }
+        return result;
     }
 
-    [[nodiscard]] const std::vector<edge_type>& view() const noexcept {
-        return edges_;
-    }
-
-    [[nodiscard]] std::vector<edge_type> build() const& {
-        return edges_;
-    }
-
-    [[nodiscard]] std::vector<edge_type> build() && noexcept {
-        return std::move(edges_);
+    [[nodiscard]] std::vector<edge_type> build() const {
+        core::Random rng = core::Random::from_time();
+        return build(rng);
     }
 
 private:
-    size_type nodes_;
-    std::vector<edge_type> edges_;
-    core::Random random_;
+    enum class Mode {
+        Bamboo,
+        Star,
+        Random,
+        Binary,
+        Caterpillar,
+        DeepRecursion
+    };
 
-    [[nodiscard]] node_type normalized_center(const node_type center, const node_type first) const noexcept {
-        const auto last = static_cast<node_type>(first + static_cast<node_type>(nodes_ - 1));
-        if (center < first || center > last) {
-            return first;
+    size_type nodes_;
+    node_type first_{1};
+    node_type center_{1};
+    bool has_center_{false};
+    bool weighted_{false};
+    weight_type weight_left_{1};
+    weight_type weight_right_{1};
+    size_type spine_{0};
+    size_type branches_{0};
+    bool shuffle_{false};
+    Mode mode_{Mode::Bamboo};
+
+    void validate_common() const {
+        if (nodes_ == 0) {
+            return;
         }
-        return center;
+        core::require(nodes_ <= static_cast<size_type>(2147483647), "Tree node count exceeds int label capacity");
+        (void)label(nodes_ - 1);
+    }
+
+    [[nodiscard]] node_type label(const size_type offset) const noexcept {
+        return static_cast<node_type>(first_ + static_cast<node_type>(offset));
+    }
+
+    [[nodiscard]] weight_type next_weight(core::Random& rng) const {
+        return weighted_ ? rng.integer<weight_type>(weight_left_, weight_right_) : weight_type{1};
+    }
+
+    [[nodiscard]] edge_type make_edge(const node_type u, const node_type v, core::Random& rng) const {
+        return Edge{u, v, next_weight(rng), weighted_};
+    }
+
+    void generate_bamboo(std::vector<edge_type>& result, core::Random& rng) const {
+        for (size_type i = 0; i + 1 < nodes_; ++i) {
+            result.push_back(make_edge(label(i), label(i + 1), rng));
+        }
+    }
+
+    void generate_star(std::vector<edge_type>& result, core::Random& rng) const {
+        const node_type root = has_center_ ? center_ : first_;
+        core::require(root >= first_ && root <= label(nodes_ - 1), "Tree::star center is outside node label range");
+
+        for (size_type i = 0; i < nodes_; ++i) {
+            const node_type v = label(i);
+            if (v != root) {
+                result.push_back(make_edge(root, v, rng));
+            }
+        }
+    }
+
+    void generate_random(std::vector<edge_type>& result, core::Random& rng) const {
+        for (size_type i = 1; i < nodes_; ++i) {
+            const size_type parent = rng.integer<size_type>(0, i - 1);
+            result.push_back(make_edge(label(parent), label(i), rng));
+        }
+    }
+
+    void generate_binary(std::vector<edge_type>& result, core::Random& rng) const {
+        for (size_type i = 1; i < nodes_; ++i) {
+            result.push_back(make_edge(label((i - 1) / 2), label(i), rng));
+        }
+    }
+
+    void generate_caterpillar(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(spine_ > 0 && spine_ <= nodes_, "Tree::caterpillar spine must be in [1, n]");
+
+        for (size_type i = 0; i + 1 < spine_; ++i) {
+            result.push_back(make_edge(label(i), label(i + 1), rng));
+        }
+        for (size_type i = spine_; i < nodes_; ++i) {
+            const size_type parent = rng.integer<size_type>(0, spine_ - 1);
+            result.push_back(make_edge(label(parent), label(i), rng));
+        }
+    }
+
+    void generate_deep_recursion(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(branches_ < nodes_, "Tree::deep_recursion branches must be less than n");
+        const size_type chain_nodes = nodes_ - branches_;
+        core::require(chain_nodes > 0, "Tree::deep_recursion needs at least one chain node");
+
+        for (size_type i = 0; i + 1 < chain_nodes; ++i) {
+            result.push_back(make_edge(label(i), label(i + 1), rng));
+        }
+        for (size_type i = chain_nodes; i < nodes_; ++i) {
+            const size_type parent = rng.integer<size_type>(0, chain_nodes - 1);
+            result.push_back(make_edge(label(parent), label(i), rng));
+        }
+    }
+
+    static void shuffle_edges(std::vector<edge_type>& result, core::Random& rng) {
+        if (result.size() < 2) {
+            return;
+        }
+
+        for (size_type i = result.size() - 1; i > 0; --i) {
+            const size_type j = rng.integer<size_type>(0, i);
+            std::swap(result[i], result[j]);
+        }
     }
 };
 
