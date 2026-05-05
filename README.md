@@ -6,6 +6,7 @@
 
 - [English documentation](docs/en/overview.md)
 - [English installation guide](docs/en/installation.md)
+- [API reference](docs/api.md)
 - [Tài liệu tiếng Việt](docs/vn/overview.md)
 - [Tài liệu cài đặt tiếng Việt](docs/vn/installation.md)
 
