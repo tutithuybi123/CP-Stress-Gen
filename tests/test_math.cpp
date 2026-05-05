@@ -37,11 +37,38 @@ int main() {
     const auto with_gcd = cp_stress_gen::Math::with_gcd(6, 2, 9, rng);
     assert(cp_stress_gen::Math::gcd(with_gcd.first, with_gcd.second) == 6);
 
+    assert(cp_stress_gen::Math::mod_pow(2, 10, 1000) == 24);
+    assert(cp_stress_gen::Math::mod_pow(-2, 3, 5) == 2);
+
+    const auto eg = cp_stress_gen::Math::extended_gcd(30, 18);
+    assert(eg.gcd == 6);
+    assert(30 * eg.x + 18 * eg.y == eg.gcd);
+
+    assert(cp_stress_gen::Math::mod_inverse(3, 11) == 4);
+    assert((cp_stress_gen::Math::factorize_trial(360) == std::vector<std::pair<long long, int>>{{2, 3}, {3, 2}, {5, 1}}));
+    assert(cp_stress_gen::Math::factorize_trial(1).empty());
+
     cp_stress_gen::core::Random same_a(11);
     cp_stress_gen::core::Random same_b(11);
     assert(cp_stress_gen::Math::random_composite(4, 30, same_a) == cp_stress_gen::Math::random_composite(4, 30, same_b));
 
     bool thrown = false;
+    try {
+        (void)cp_stress_gen::Math::mod_pow(2, -1, 5);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Math::mod_inverse(2, 4);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
     try {
         (void)cp_stress_gen::Math::random_prime(14, 16, rng);
     } catch (const std::invalid_argument&) {

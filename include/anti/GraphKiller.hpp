@@ -31,7 +31,17 @@ public:
     [[nodiscard]] static std::vector<Graph::Edge> sparse_connected(const size_type n, core::Random& rng) {
         return Graph(n).sparse_connected().build(rng);
     }
+
+    [[nodiscard]] static std::vector<Graph::Edge> dense_dag(const size_type n) {
+        std::vector<Graph::Edge> result;
+        result.reserve(n * (n > 0 ? n - 1 : 0) / 2);
+        for (size_type u = 1; u <= n; ++u) {
+            for (size_type v = u + 1; v <= n; ++v) {
+                result.push_back(Graph::Edge{static_cast<int>(u), static_cast<int>(v), 1, false});
+            }
+        }
+        return result;
+    }
 };
 
 } // namespace cp_stress_gen::anti
-

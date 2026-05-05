@@ -49,11 +49,43 @@ int main() {
         assert(point.x == 4 && point.y == 7);
     }
 
+    const auto rectangle = cp_stress_gen::Geometry::rectangle_polygon(0, 0, 3, 2);
+    assert(rectangle.size() == 4);
+    assert(rectangle[0].x == 0 && rectangle[0].y == 0);
+    assert(rectangle[2].x == 3 && rectangle[2].y == 2);
+
+    const auto triangle = cp_stress_gen::Geometry::triangle(
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{2, 0},
+        cp_stress_gen::Geometry::point_type{0, 2}
+    );
+    assert(triangle.size() == 3);
+
     cp_stress_gen::core::Random same_a(22);
     cp_stress_gen::core::Random same_b(22);
     assert(cp_stress_gen::Geometry::clustered_points(20).center(5, 5).radius(3).build(same_a) == cp_stress_gen::Geometry::clustered_points(20).center(5, 5).radius(3).build(same_b));
 
     bool thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::rectangle_polygon(0, 0, 0, 2);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::triangle(
+            cp_stress_gen::Geometry::point_type{0, 0},
+            cp_stress_gen::Geometry::point_type{1, 1},
+            cp_stress_gen::Geometry::point_type{2, 2}
+        );
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
     try {
         (void)cp_stress_gen::Geometry::points(3).rectangle(3, 1, 2, 4);
     } catch (const std::invalid_argument&) {

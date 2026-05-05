@@ -12,6 +12,12 @@ namespace cp_stress_gen {
 
 class Math {
 public:
+    struct ExtendedGcdResult {
+        long long gcd;
+        long long x;
+        long long y;
+    };
+
     [[nodiscard]] static long long gcd(long long a, long long b) noexcept {
         if (a < 0) {
             a = -a;
@@ -154,6 +160,115 @@ public:
         core::require(multiplier_left > 0, "Math::with_gcd requires positive multipliers");
         const auto multipliers = coprime_pair(multiplier_left, multiplier_right, rng);
         return std::make_pair(g * multipliers.first, g * multipliers.second);
+    }
+
+    [[nodiscard]] static long long mod_pow(long long base, long long exponent, const long long mod) {
+        core::require(mod > 0, "Math::mod_pow requires mod > 0");
+        core::require(exponent >= 0, "Math::mod_pow requires exponent >= 0");
+        base = normalize_mod(base, mod);
+
+        long long result = 1 % mod;
+        while (exponent > 0) {
+            if ((exponent & 1LL) != 0) {
+                result = mul_mod(result, base, mod);
+            }
+            base = mul_mod(base, base, mod);
+            exponent >>= 1;
+        }
+        return result;
+    }
+
+    [[nodiscard]] static ExtendedGcdResult extended_gcd(long long a, long long b) noexcept {
+        const long long sign_a = a < 0 ? -1 : 1;
+        const long long sign_b = b < 0 ? -1 : 1;
+        a = std::llabs(a);
+        b = std::llabs(b);
+
+        long long old_r = a;
+        long long r = b;
+        long long old_s = 1;
+        long long s = 0;
+        long long old_t = 0;
+        long long t = 1;
+
+        while (r != 0) {
+            const long long q = old_r / r;
+
+            const long long next_r = old_r - q * r;
+            old_r = r;
+            r = next_r;
+
+            const long long next_s = old_s - q * s;
+            old_s = s;
+            s = next_s;
+
+            const long long next_t = old_t - q * t;
+            old_t = t;
+            t = next_t;
+        }
+
+        return ExtendedGcdResult{old_r, old_s * sign_a, old_t * sign_b};
+    }
+
+    [[nodiscard]] static long long mod_inverse(const long long value, const long long mod) {
+        core::require(mod > 0, "Math::mod_inverse requires mod > 0");
+        const ExtendedGcdResult result = extended_gcd(value, mod);
+        core::require(result.gcd == 1, "Math::mod_inverse requires coprime value and mod");
+        return normalize_mod(result.x, mod);
+    }
+
+    [[nodiscard]] static std::vector<std::pair<long long, int>> factorize_trial(long long value) {
+        value = std::llabs(value);
+        std::vector<std::pair<long long, int>> result;
+        if (value < 2) {
+            return result;
+        }
+
+        for (long long p = 2; p * p <= value; p += (p == 2 ? 1 : 2)) {
+            if (value % p != 0) {
+                continue;
+            }
+            int count = 0;
+            while (value % p == 0) {
+                value /= p;
+                ++count;
+            }
+            result.push_back(std::make_pair(p, count));
+        }
+        if (value > 1) {
+            result.push_back(std::make_pair(value, 1));
+        }
+        return result;
+    }
+
+private:
+    [[nodiscard]] static long long normalize_mod(long long value, const long long mod) noexcept {
+        value %= mod;
+        if (value < 0) {
+            value += mod;
+        }
+        return value;
+    }
+
+    [[nodiscard]] static long long add_mod(const long long a, const long long b, const long long mod) noexcept {
+        if (a >= mod - b) {
+            return a - (mod - b);
+        }
+        return a + b;
+    }
+
+    [[nodiscard]] static long long mul_mod(long long a, long long b, const long long mod) noexcept {
+        long long result = 0;
+        while (b > 0) {
+            if ((b & 1LL) != 0) {
+                result = add_mod(result, a, mod);
+            }
+            b >>= 1;
+            if (b > 0) {
+                a = add_mod(a, a, mod);
+            }
+        }
+        return result;
     }
 };
 

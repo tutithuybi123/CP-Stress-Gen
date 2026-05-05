@@ -105,6 +105,31 @@ int main() {
         assert(edge.w >= 2 && edge.w <= 4);
     }
 
+    const auto wheel = cp_stress_gen::Graph(6).wheel().build(rng);
+    assert(wheel.size() == 10);
+    assert_no_duplicate_edges(wheel, false);
+
+    const auto grid = cp_stress_gen::Graph(6).grid(2, 3).build(rng);
+    assert(grid.size() == 7);
+    assert_no_duplicate_edges(grid, false);
+
+    const auto complete_bipartite = cp_stress_gen::Graph(7).complete_bipartite(3, 4).build(rng);
+    assert(complete_bipartite.size() == 12);
+    assert_no_duplicate_edges(complete_bipartite, false);
+    for (const auto& edge : complete_bipartite) {
+        assert(edge.u >= 1 && edge.u <= 3);
+        assert(edge.v >= 4 && edge.v <= 7);
+    }
+
+    const auto tournament = cp_stress_gen::Graph(5).tournament().build(rng);
+    assert(tournament.size() == 10);
+    assert_no_duplicate_edges(tournament, true);
+    std::set<std::pair<int, int>> unordered_pairs;
+    for (const auto& edge : tournament) {
+        unordered_pairs.insert(key(edge, false));
+    }
+    assert(unordered_pairs.size() == 10);
+
     cp_stress_gen::core::Random same_a(33);
     cp_stress_gen::core::Random same_b(33);
     assert(same_edges(
@@ -113,6 +138,62 @@ int main() {
     ));
 
     bool thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(3).wheel().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).wheel().directed().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).grid(2, 3).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(4).grid(0, 4).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(5).complete_bipartite(2, 2).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(4).tournament().undirected().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph(4).edges(5).tournament().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
     try {
         (void)cp_stress_gen::Graph(2).edges(1).build(rng);
     } catch (const std::invalid_argument&) {

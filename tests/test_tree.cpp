@@ -69,6 +69,17 @@ static bool same_edges(
     return true;
 }
 
+static void assert_max_degree(const std::vector<cp_stress_gen::Tree::Edge>& edges, const int n, const int first, const int limit) {
+    std::vector<int> degree(static_cast<std::size_t>(n), 0);
+    for (const auto& edge : edges) {
+        ++degree[static_cast<std::size_t>(edge.u - first)];
+        ++degree[static_cast<std::size_t>(edge.v - first)];
+    }
+    for (const int value : degree) {
+        assert(value <= limit);
+    }
+}
+
 int main() {
     cp_stress_gen::core::Random rng(2);
 
@@ -88,6 +99,14 @@ int main() {
         assert(edge.w >= 5 && edge.w <= 8);
     }
 
+    const auto limited = cp_stress_gen::Tree(20).zero_based().weighted(1, 3).random().degree_limit(3).build(rng);
+    assert_tree(limited, 20, 0);
+    assert_max_degree(limited, 20, 0, 3);
+    for (const auto& edge : limited) {
+        assert(edge.weighted);
+        assert(edge.w >= 1 && edge.w <= 3);
+    }
+
     cp_stress_gen::core::Random same_a(44);
     cp_stress_gen::core::Random same_b(44);
     assert(same_edges(
@@ -96,6 +115,30 @@ int main() {
     ));
 
     bool thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(5).random().degree_limit(1).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(5).bamboo().degree_limit(2).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(5).degree_limit(0);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
     try {
         (void)cp_stress_gen::Tree(4).star(10).build(rng);
     } catch (const std::invalid_argument&) {

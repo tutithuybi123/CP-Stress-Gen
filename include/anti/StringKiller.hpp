@@ -36,7 +36,17 @@ public:
         }
         return result;
     }
+
+    [[nodiscard]] static std::string kmp_prefix_pattern(const size_type n, const char repeated = 'a', const char breaker = 'b') {
+        if (n == 0) {
+            return {};
+        }
+        std::string result(n, repeated);
+        if (n > 1) {
+            result[n - 1] = breaker;
+        }
+        return result;
+    }
 };
 
 } // namespace cp_stress_gen::anti
-

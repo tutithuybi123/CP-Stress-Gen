@@ -300,6 +300,36 @@ public:
     [[nodiscard]] static DuplicateGenerator duplicate_points(const size_type count) {
         return DuplicateGenerator(count);
     }
+
+    [[nodiscard]] static std::vector<point_type> rectangle_polygon(
+        const coord_type x1,
+        const coord_type y1,
+        const coord_type x2,
+        const coord_type y2
+    ) {
+        core::require(x1 < x2, "Geometry::rectangle_polygon requires x1 < x2");
+        core::require(y1 < y2, "Geometry::rectangle_polygon requires y1 < y2");
+        return std::vector<point_type>{
+            point_type{x1, y1},
+            point_type{x2, y1},
+            point_type{x2, y2},
+            point_type{x1, y2}
+        };
+    }
+
+    [[nodiscard]] static std::vector<point_type> triangle(
+        const point_type a,
+        const point_type b,
+        const point_type c
+    ) {
+        core::require(cross(a, b, c) != 0, "Geometry::triangle requires non-collinear points");
+        return std::vector<point_type>{a, b, c};
+    }
+
+private:
+    [[nodiscard]] static coord_type cross(const point_type a, const point_type b, const point_type c) noexcept {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    }
 };
 
 } // namespace cp_stress_gen

@@ -150,6 +150,38 @@ public:
         return *this;
     }
 
+    Graph& wheel() noexcept {
+        mode_ = Mode::Wheel;
+        directed_ = false;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
+    Graph& grid(const size_type rows, const size_type cols) noexcept {
+        mode_ = Mode::Grid;
+        rows_ = rows;
+        cols_ = cols;
+        directed_ = false;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
+    Graph& complete_bipartite(const size_type left_size, const size_type right_size) noexcept {
+        mode_ = Mode::CompleteBipartite;
+        left_part_ = left_size;
+        right_part_ = right_size;
+        directed_ = false;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
+    Graph& tournament() noexcept {
+        mode_ = Mode::Tournament;
+        directed_ = true;
+        no_multi_edges_ = true;
+        return *this;
+    }
+
     Graph& shuffle() noexcept {
         shuffle_ = true;
         return *this;
@@ -183,6 +215,14 @@ public:
             generate_connected_components(result, rng);
         } else if (mode_ == Mode::Bipartite) {
             generate_bipartite(result, rng);
+        } else if (mode_ == Mode::Wheel) {
+            generate_wheel(result, rng);
+        } else if (mode_ == Mode::Grid) {
+            generate_grid(result, rng);
+        } else if (mode_ == Mode::CompleteBipartite) {
+            generate_complete_bipartite(result, rng);
+        } else if (mode_ == Mode::Tournament) {
+            generate_tournament(result, rng);
         } else {
             generate_general(result, rng);
         }
@@ -210,7 +250,11 @@ private:
         Path,
         Forest,
         ConnectedComponents,
-        Bipartite
+        Bipartite,
+        Wheel,
+        Grid,
+        CompleteBipartite,
+        Tournament
     };
 
     size_type nodes_;
@@ -224,6 +268,9 @@ private:
     weight_type weight_right_{1};
     size_type layers_{0};
     size_type left_part_{0};
+    size_type right_part_{0};
+    size_type rows_{0};
+    size_type cols_{0};
     size_type components_{0};
     bool shuffle_{false};
     Mode mode_{Mode::General};
@@ -541,6 +588,82 @@ private:
             const size_type u = rng.integer<size_type>(0, left_part_ - 1);
             const size_type v = rng.integer<size_type>(left_part_, nodes_ - 1);
             result.push_back(make_edge(u, v, rng));
+        }
+    }
+
+    void require_exact_edges(const size_type expected, const char* name) const {
+        if (has_edges_) {
+            core::require(requested_edges_ == expected, std::string(name) + " edge count must match the generated structure");
+        }
+    }
+
+    void generate_wheel(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(!directed_, "Graph::wheel supports undirected graphs only");
+        core::require(nodes_ >= 4, "Graph::wheel needs at least 4 nodes");
+        const size_type expected = 2 * (nodes_ - 1);
+        require_exact_edges(expected, "Graph::wheel");
+
+        result.reserve(expected);
+        for (size_type i = 1; i + 1 < nodes_; ++i) {
+            result.push_back(make_edge(i, i + 1, rng));
+        }
+        result.push_back(make_edge(nodes_ - 1, 1, rng));
+        for (size_type i = 1; i < nodes_; ++i) {
+            result.push_back(make_edge(0, i, rng));
+        }
+    }
+
+    void generate_grid(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(!directed_, "Graph::grid supports undirected graphs only");
+        core::require(rows_ > 0 && cols_ > 0, "Graph::grid rows and cols must be positive");
+        core::require(rows_ <= nodes_ / cols_ && rows_ * cols_ == nodes_, "Graph::grid rows * cols must equal n");
+        const size_type expected = (rows_ - 1) * cols_ + rows_ * (cols_ - 1);
+        require_exact_edges(expected, "Graph::grid");
+
+        result.reserve(expected);
+        for (size_type r = 0; r < rows_; ++r) {
+            for (size_type c = 0; c < cols_; ++c) {
+                const size_type id = r * cols_ + c;
+                if (r + 1 < rows_) {
+                    result.push_back(make_edge(id, id + cols_, rng));
+                }
+                if (c + 1 < cols_) {
+                    result.push_back(make_edge(id, id + 1, rng));
+                }
+            }
+        }
+    }
+
+    void generate_complete_bipartite(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(!directed_, "Graph::complete_bipartite supports undirected graphs only");
+        core::require(left_part_ > 0 && right_part_ > 0, "Graph::complete_bipartite parts must be positive");
+        core::require(left_part_ + right_part_ == nodes_, "Graph::complete_bipartite left + right must equal n");
+        const size_type expected = left_part_ * right_part_;
+        require_exact_edges(expected, "Graph::complete_bipartite");
+
+        result.reserve(expected);
+        for (size_type u = 0; u < left_part_; ++u) {
+            for (size_type v = left_part_; v < nodes_; ++v) {
+                result.push_back(make_edge(u, v, rng));
+            }
+        }
+    }
+
+    void generate_tournament(std::vector<edge_type>& result, core::Random& rng) const {
+        core::require(directed_, "Graph::tournament supports directed graphs only");
+        const std::uint64_t n = static_cast<std::uint64_t>(nodes_);
+        const size_type expected = static_cast<size_type>(n * (n > 0 ? n - 1 : 0) / 2);
+        require_exact_edges(expected, "Graph::tournament");
+
+        result.reserve(expected);
+        for (size_type u = 0; u + 1 < nodes_; ++u) {
+            for (size_type v = u + 1; v < nodes_; ++v) {
+                if (rng.boolean()) {
+                    result.push_back(make_edge(u, v, rng));
+                } else {
+                    result.push_back(make_edge(v, u, rng));
+                }
+            }
         }
     }
 

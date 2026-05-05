@@ -78,6 +78,13 @@ public:
         return *this;
     }
 
+    Tree& degree_limit(const size_type limit) {
+        core::require_positive(limit, "Tree::degree_limit limit must be positive");
+        has_degree_limit_ = true;
+        degree_limit_ = limit;
+        return *this;
+    }
+
     Tree& binary() noexcept {
         mode_ = Mode::Binary;
         return *this;
@@ -157,10 +164,16 @@ private:
     weight_type weight_right_{1};
     size_type spine_{0};
     size_type branches_{0};
+    size_type degree_limit_{0};
+    bool has_degree_limit_{false};
     bool shuffle_{false};
     Mode mode_{Mode::Bamboo};
 
     void validate_common() const {
+        if (has_degree_limit_) {
+            core::require(mode_ == Mode::Random, "Tree::degree_limit currently supports random trees only");
+            core::require(nodes_ <= 2 || degree_limit_ >= 2, "Tree::degree_limit needs limit >= 2 when n > 2");
+        }
         if (nodes_ == 0) {
             return;
         }
@@ -199,9 +212,38 @@ private:
     }
 
     void generate_random(std::vector<edge_type>& result, core::Random& rng) const {
+        if (has_degree_limit_) {
+            generate_degree_limited_random(result, rng);
+            return;
+        }
         for (size_type i = 1; i < nodes_; ++i) {
             const size_type parent = rng.integer<size_type>(0, i - 1);
             result.push_back(make_edge(label(parent), label(i), rng));
+        }
+    }
+
+    void generate_degree_limited_random(std::vector<edge_type>& result, core::Random& rng) const {
+        std::vector<size_type> degree(nodes_, 0);
+        std::vector<size_type> candidates;
+        candidates.reserve(nodes_);
+        candidates.push_back(0);
+
+        for (size_type i = 1; i < nodes_; ++i) {
+            core::require(!candidates.empty(), "Tree::degree_limit cannot attach a new node");
+            const size_type index = rng.integer<size_type>(0, candidates.size() - 1);
+            const size_type parent = candidates[index];
+
+            result.push_back(make_edge(label(parent), label(i), rng));
+            ++degree[parent];
+            ++degree[i];
+
+            if (degree[parent] >= degree_limit_) {
+                candidates[index] = candidates.back();
+                candidates.pop_back();
+            }
+            if (degree[i] < degree_limit_) {
+                candidates.push_back(i);
+            }
         }
     }
 
@@ -250,4 +292,3 @@ private:
 };
 
 } // namespace cp_stress_gen
-

@@ -3,6 +3,7 @@
 #include "../core/Random.hpp"
 #include "../core/Validate.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <utility>
 #include <vector>
@@ -47,7 +48,32 @@ public:
         }
         return result;
     }
+
+    [[nodiscard]] static std::vector<value_type> organ_pipe(const size_type n, const value_type first = 1) {
+        std::vector<value_type> result;
+        result.reserve(n);
+        for (size_type i = 0; i < n; ++i) {
+            const size_type distance = std::min(i, n - 1 - i);
+            result.push_back(first + static_cast<value_type>(distance));
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::vector<value_type> alternating_high_low(const size_type n, const value_type first = 1) {
+        std::vector<value_type> result;
+        result.reserve(n);
+        size_type low = 0;
+        size_type high = n;
+        while (low < high) {
+            result.push_back(first + static_cast<value_type>(low));
+            ++low;
+            if (low < high) {
+                --high;
+                result.push_back(first + static_cast<value_type>(high));
+            }
+        }
+        return result;
+    }
 };
 
 } // namespace cp_stress_gen::anti
-
