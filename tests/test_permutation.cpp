@@ -1,0 +1,41 @@
+#include "cp_stress_gen.hpp"
+
+#include <algorithm>
+#include <cassert>
+#include <stdexcept>
+#include <vector>
+
+static void assert_permutation(std::vector<int> values, const int first) {
+    const int n = static_cast<int>(values.size());
+    std::sort(values.begin(), values.end());
+    for (int i = 0; i < n; ++i) {
+        assert(values[static_cast<std::size_t>(i)] == first + i);
+    }
+}
+
+int main() {
+    cp_stress_gen::core::Random rng(5);
+
+    const auto shuffled = cp_stress_gen::Permutation(20).shuffle().build(rng);
+    assert_permutation(shuffled, 1);
+
+    const auto zero_based = cp_stress_gen::Permutation(10).zero_based().shuffle().build(rng);
+    assert_permutation(zero_based, 0);
+
+    const auto reversed = cp_stress_gen::Permutation(5).reversed().build(rng);
+    assert((reversed == std::vector<int>{5, 4, 3, 2, 1}));
+
+    const auto almost = cp_stress_gen::Permutation(8).almost_sorted(3).build(rng);
+    assert_permutation(almost, 1);
+
+    bool thrown = false;
+    try {
+        (void)cp_stress_gen::Permutation(3).almost_sorted(4).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    return 0;
+}
+
