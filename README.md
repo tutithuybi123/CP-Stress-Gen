@@ -61,6 +61,14 @@ Hard:
 - `examples/hard_graph_suite.cpp`
 - `examples/hard_anti_patterns.cpp`
 
+Phase 3 structures:
+
+- `examples/tree_degree_limit.cpp`
+- `examples/graph_structures.cpp`
+- `examples/math_helpers.cpp`
+- `examples/geometry_shapes.cpp`
+- `examples/anti_patterns.cpp`
+
 Existing focused examples remain available in `examples/`. See [English examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile commands and usage notes.
 
 ## Current Modules
