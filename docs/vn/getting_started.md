@@ -2,6 +2,8 @@
 
 Thư viện là header-only. Chỉ cần thêm thư mục `include/` vào include path của trình biên dịch và include header tổng.
 
+Nếu bạn chưa tải project, hãy bắt đầu với [hướng dẫn cài đặt](installation.md).
+
 ```cpp
 #include "cp_stress_gen.hpp"
 ```

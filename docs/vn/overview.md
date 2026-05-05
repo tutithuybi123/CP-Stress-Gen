@@ -31,6 +31,7 @@
 
 ## Nên đọc tiếp
 
+- [Cài đặt](installation.md)
 - [Bắt đầu](getting_started.md)
 - [Ví dụ](examples.md)
 - [Đồ thị](graph.md)

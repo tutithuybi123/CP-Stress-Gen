@@ -31,6 +31,7 @@
 
 ## Next Reading
 
+- [Installation](installation.md)
 - [Getting Started](getting_started.md)
 - [Examples](examples.md)
 - [Graph](graph.md)

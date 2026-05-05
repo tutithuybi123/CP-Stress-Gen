@@ -2,6 +2,8 @@
 
 `CP-Stress-Gen` does not require a build system. It is a collection of headers under `include/`.
 
+For download and setup steps, see the [installation guide](installation.md).
+
 ## Direct Compile
 
 ```powershell

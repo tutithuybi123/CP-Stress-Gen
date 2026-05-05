@@ -2,6 +2,8 @@
 
 `CP-Stress-Gen` không cần hệ thống biên dịch riêng. Toàn bộ thư viện nằm trong các header ở thư mục `include/`.
 
+Nếu cần các bước tải project và cài đặt ban đầu, xem [hướng dẫn cài đặt](installation.md).
+
 ## Biên dịch trực tiếp
 
 ```powershell

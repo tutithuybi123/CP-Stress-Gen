@@ -2,6 +2,8 @@
 
 The library is header-only. Add `include/` to your compiler include path and include the umbrella header.
 
+If you have not downloaded the project yet, start with the [installation guide](installation.md).
+
 ```cpp
 #include "cp_stress_gen.hpp"
 ```
