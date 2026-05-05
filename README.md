@@ -1,38 +1,17 @@
 # CP-Stress-Gen
 
-`CP-Stress-Gen` is a lightweight, header-only C++17 library for competitive programming test generation. It provides practical fluent generators, deterministic seeded output, validation helpers, and simple output utilities for local stress-testing workflows.
+`CP-Stress-Gen` is a lightweight, header-only C++17 library for competitive programming test generation. It provides fluent generators, deterministic seeded output, validation helpers, simple printers, and practical examples for local stress testing.
 
-## Status
+## Documentation
 
-Phase 1 is implemented and passing with direct `g++` checks. The library currently includes core helpers, arrays, trees, graphs, strings, permutations, math helpers, integer geometry helpers, safe adversarial pattern modules, examples, and plain `assert` tests.
-
-Phase 2 focuses on documentation quality, realistic stress workflow examples, safe generator improvements, stronger validation coverage, and direct-use packaging notes without adding CMake or external dependencies.
+- [English documentation](docs/en/overview.md)
+- [Tài liệu tiếng Việt](docs/vn/overview.md)
 
 ## Requirements
 
 - C++17 or newer
 - A standard C++ compiler such as `g++`
 - No external libraries
-
-## Direct Include Usage
-
-The project is header-only. Add `CP-Stress-Gen/include` to your include path and include the umbrella header:
-
-```cpp
-#include "cp_stress_gen.hpp"
-```
-
-Compile a file directly:
-
-```powershell
-g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude examples/array_basic.cpp -o .tmp_build/array_basic.exe
-```
-
-Run it:
-
-```powershell
-.\.tmp_build\array_basic.exe
-```
 
 ## Quick Start
 
@@ -51,65 +30,49 @@ int main() {
 }
 ```
 
-## Module Overview
-
-| Area | Headers | Current capabilities |
-| --- | --- | --- |
-| Core | `Random.hpp`, `Validate.hpp`, `Printer.hpp` | Xoshiro256**, validation exceptions, vector/edge printing |
-| Arrays | `Array.hpp` | ranges, fill, iota, shuffle |
-| Trees | `Tree.hpp` | bamboo, star, random, binary, caterpillar, deep-recursion, weighted edges |
-| Graphs | `Graph.hpp` | DAG, layered DAG, dense, sparse connected, complete, cycle, bipartite |
-| Strings | `String.hpp` | alphabet, lowercase, uppercase, digits, binary, char ranges |
-| Permutations | `Permutation.hpp` | identity, shuffle, reversed, almost sorted |
-| Math | `Math.hpp` | gcd, lcm, divisors, primes, random prime |
-| Geometry | `Geometry.hpp` | integer rectangle points, unique grid points, collinear points |
-| Anti patterns | `include/anti/*.hpp` | safe sort/tree/graph/string pattern generators |
-
-## Design Principles
-
-- Header-only and dependency-free.
-- C++17 baseline for broad compiler support.
-- Fluent APIs for readable generators.
-- Explicit deterministic randomness through `build(rng)`.
-- Clear exceptions for invalid generator configurations.
-- Small, focused headers that are easy to embed in contest tooling.
-
-## Examples
-
-Existing examples demonstrate individual modules:
-
-- `examples/array_basic.cpp`
-- `examples/string_basic.cpp`
-- `examples/permutation_basic.cpp`
-- `examples/tree_basic.cpp`
-- `examples/graph_basic.cpp`
-- `examples/dag_basic.cpp`
-- `examples/geometry_basic.cpp`
-- `examples/anti_basic.cpp`
-- `examples/printer_basic.cpp`
-
-Practical workflow examples:
-
-- `examples/stress_pair_basic.cpp`: in-process brute/optimized comparison skeleton.
-- `examples/testcase_batch.cpp`: prints multiple test cases in one stream.
-- `examples/graph_suite.cpp`: connected, DAG, bipartite, and dense graph generation.
-- `examples/tree_suite.cpp`: bamboo, star, random, caterpillar, and deep recursion trees.
-
-## Development Checks
-
-Tests are plain C++ programs using `assert`, compiled directly with `g++`:
+Compile directly:
 
 ```powershell
 New-Item -ItemType Directory -Force .tmp_build
-g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude tests/test_random.cpp -o .tmp_build/test_random.exe
-.\.tmp_build\test_random.exe
+g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude examples/easy_array_sum.cpp -o .tmp_build/easy_array_sum.exe
+.\.tmp_build\easy_array_sum.exe
 ```
 
-Compile examples the same way:
+## Examples
 
-```powershell
-g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude examples/graph_basic.cpp -o .tmp_build/graph_basic.exe
-```
+Easy:
+
+- `examples/easy_array_sum.cpp`
+- `examples/easy_string_palindrome.cpp`
+- `examples/easy_tree_shapes.cpp`
+
+Medium:
+
+- `examples/medium_graph_cases.cpp`
+- `examples/medium_geometry_points.cpp`
+- `examples/medium_batch_tests.cpp`
+
+Hard:
+
+- `examples/hard_stress_compare.cpp`
+- `examples/hard_graph_suite.cpp`
+- `examples/hard_anti_patterns.cpp`
+
+Existing focused examples remain available in `examples/`. See [English examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile commands and usage notes.
+
+## Current Modules
+
+| Area | Capabilities |
+| --- | --- |
+| Core | Xoshiro256**, validation helpers, vector and edge printing |
+| Arrays | Ranges, fill, iota, shuffle, almost sorted, many equal, blocky |
+| Strings | Alphabets, ranges, palindrome, almost palindrome, periodic, prefix-heavy |
+| Permutations | One-based/zero-based, shuffle, reversed, cyclic shift, few swaps, blocks |
+| Trees | Bamboo, star, random, binary, caterpillar, deep recursion, weighted edges |
+| Graphs | General, DAG, layered DAG, dense, sparse connected, complete, cycle, path, forest, components, bipartite |
+| Math | gcd, lcm, divisors, primes, primality, random prime/composite, coprime pairs |
+| Geometry | Integer points, unique grid points, collinear, boundary, clustered, duplicates |
+| Anti patterns | Safe sort/tree/graph/string patterns with honest names |
 
 ## Known Limitations
 
@@ -119,13 +82,14 @@ g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude examples/graph_basic.cpp -o .tm
 - Large-range prime generation is intentionally simple.
 - Advanced adversarial generators such as hash collision or Dijkstra-specific patterns are deferred.
 
-## Comparison
+## Development Checks
 
-`testlib.h` is a mature contest validator/interactor toolkit. `jngen` is a capable generator library with many established ideas. `CP-Stress-Gen` is intentionally smaller: it aims to provide a clean, header-only C++17 generator API that is easy to embed in local stress testing workflows.
+Tests are plain C++ programs using `assert` and direct `g++` commands:
 
-## Roadmap
-
-See `docs/roadmap.md`.
+```powershell
+g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude tests/test_random.cpp -o .tmp_build/test_random.exe
+.\.tmp_build\test_random.exe
+```
 
 ## License
 

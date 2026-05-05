@@ -1,0 +1,21 @@
+#include "cp_stress_gen.hpp"
+
+#include <iostream>
+
+int main() {
+    cp_stress_gen::core::Random rng(203);
+    cp_stress_gen::core::Printer out(std::cout);
+
+    const int tests = 5;
+    out.line(tests);
+    for (int tc = 0; tc < tests; ++tc) {
+        const int n = 5 + tc;
+        const auto values = cp_stress_gen::Array(static_cast<std::size_t>(n)).many_equal(3).build(rng);
+        const auto label = cp_stress_gen::String(static_cast<std::size_t>(n)).lowercase().build(rng);
+
+        out.line(n);
+        out.vector(values);
+        out.line(label);
+    }
+    return 0;
+}
