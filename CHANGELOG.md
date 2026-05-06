@@ -2,7 +2,7 @@
 
 All notable changes to `CP-Stress-Gen` will be documented in this file.
 
-## [0.2.0] - Unreleased
+## [0.2.0] - 2026-05-06
 
 ### Added
 
