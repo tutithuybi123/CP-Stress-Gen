@@ -130,6 +130,61 @@ int main() {
     }
     assert(unordered_pairs.size() == 10);
 
+    const auto from_edges = cp_stress_gen::Graph::from_edges(4, std::vector<cp_stress_gen::Graph::Edge>{
+        cp_stress_gen::Graph::Edge{1, 2, 1, false},
+        cp_stress_gen::Graph::Edge{2, 3, 1, false},
+        cp_stress_gen::Graph::Edge{3, 4, 1, false}
+    }).build();
+    assert(from_edges.size() == 3);
+    assert_no_duplicate_edges(from_edges, false);
+
+    const auto built_path = cp_stress_gen::GraphBuilder(4).add_path({1, 2, 3, 4}).build();
+    assert(built_path.size() == 3);
+
+    const auto built_cycle = cp_stress_gen::GraphBuilder(4).add_cycle({1, 2, 3, 4}).build();
+    assert(built_cycle.size() == 4);
+    assert_no_duplicate_edges(built_cycle, false);
+
+    const auto clique = cp_stress_gen::GraphBuilder(4).add_clique({1, 2, 3, 4}).build();
+    assert(clique.size() == 6);
+    assert_no_duplicate_edges(clique, false);
+
+    const auto directed_clique = cp_stress_gen::GraphBuilder(3).directed().add_clique({1, 2, 3}).build();
+    assert(directed_clique.size() == 6);
+    assert_no_duplicate_edges(directed_clique, true);
+
+    const auto builder_bipartite = cp_stress_gen::GraphBuilder(5).add_bipartite({1, 2}, std::vector<int>{3, 4, 5}).build();
+    assert(builder_bipartite.size() == 6);
+    assert_no_duplicate_edges(builder_bipartite, false);
+
+    auto merged_builder = cp_stress_gen::GraphBuilder(3).add_path({1, 2, 3});
+    merged_builder.merge(cp_stress_gen::GraphBuilder(2).add_edge(1, 2));
+    const auto merged_graph = merged_builder.build();
+    assert(merged_graph.size() == 3);
+    assert_no_duplicate_edges(merged_graph, false);
+
+    auto shuffled_builder = cp_stress_gen::GraphBuilder(5).add_cycle({1, 2, 3, 4, 5});
+    shuffled_builder.shuffle_vertices(rng).shuffle_edges(rng);
+    const auto shuffled_graph = shuffled_builder.build();
+    assert(shuffled_graph.size() == 5);
+    assert_no_duplicate_edges(shuffled_graph, false);
+
+    const auto deduped = cp_stress_gen::Graph::from_edges(3, std::vector<cp_stress_gen::Graph::Edge>{
+        cp_stress_gen::Graph::Edge{1, 2, 1, false},
+        cp_stress_gen::Graph::Edge{2, 1, 1, false},
+        cp_stress_gen::Graph::Edge{2, 3, 1, false}
+    }).remove_duplicate_edges().build();
+    assert(deduped.size() == 2);
+    assert_no_duplicate_edges(deduped, false);
+
+    const auto complement = cp_stress_gen::GraphBuilder(4).add_path({1, 2, 3, 4}).complement().build();
+    assert(complement.size() == 3);
+    assert_no_duplicate_edges(complement, false);
+
+    const auto directed_complement = cp_stress_gen::GraphBuilder(3, true).add_edge(1, 2).complement().build();
+    assert(directed_complement.size() == 5);
+    assert_no_duplicate_edges(directed_complement, true);
+
     cp_stress_gen::core::Random same_a(33);
     cp_stress_gen::core::Random same_b(33);
     assert(same_edges(
@@ -340,6 +395,41 @@ int main() {
     thrown = false;
     try {
         (void)cp_stress_gen::Graph(5).connected_components(2).directed().build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::GraphBuilder(2).add_edge(1, 1);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::GraphBuilder(3).add_edge(1, 2).add_edge(2, 1).build();
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::GraphBuilder(2).add_edge(1, 2, 5).complement();
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Graph::from_edges(3, std::vector<cp_stress_gen::Graph::Edge>{
+            cp_stress_gen::Graph::Edge{1, 2, 1, false},
+            cp_stress_gen::Graph::Edge{2, 1, 1, false}
+        }).complement();
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

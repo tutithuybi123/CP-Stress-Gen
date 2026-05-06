@@ -6,11 +6,15 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace cp_stress_gen {
+
+class GraphBuilder;
 
 class Graph {
 public:
@@ -190,6 +194,8 @@ public:
     [[nodiscard]] size_type nodes() const noexcept {
         return nodes_;
     }
+
+    [[nodiscard]] static GraphBuilder from_edges(size_type n, const std::vector<edge_type>& edges, bool directed = false, node_type first = 1);
 
     [[nodiscard]] std::vector<edge_type> build(core::Random& rng) const {
         validate_labels();
@@ -678,5 +684,308 @@ private:
         }
     }
 };
+
+class GraphBuilder {
+public:
+    using node_type = Graph::node_type;
+    using weight_type = Graph::weight_type;
+    using size_type = Graph::size_type;
+    using edge_type = Graph::edge_type;
+
+    explicit GraphBuilder(const size_type nodes = 0, const bool directed = false, const node_type first = 1)
+        : nodes_(nodes), first_(first), directed_(directed) {
+        validate_label_capacity();
+    }
+
+    [[nodiscard]] static GraphBuilder from_edges(
+        const size_type n,
+        const std::vector<edge_type>& edges,
+        const bool directed = false,
+        const node_type first = 1
+    ) {
+        GraphBuilder builder(n, directed, first);
+        builder.edges_ = edges;
+        builder.validate_endpoints_only();
+        return builder;
+    }
+
+    GraphBuilder& directed() noexcept {
+        directed_ = true;
+        return *this;
+    }
+
+    GraphBuilder& undirected() noexcept {
+        directed_ = false;
+        return *this;
+    }
+
+    GraphBuilder& first_node(const node_type first) {
+        return renumber(first);
+    }
+
+    GraphBuilder& one_based() {
+        return renumber(1);
+    }
+
+    GraphBuilder& zero_based() {
+        return renumber(0);
+    }
+
+    GraphBuilder& add_edge(const node_type u, const node_type v) {
+        return add_edge_impl(u, v, 1, false);
+    }
+
+    GraphBuilder& add_edge(const node_type u, const node_type v, const weight_type w) {
+        return add_edge_impl(u, v, w, true);
+    }
+
+    GraphBuilder& add_path(const std::vector<node_type>& vertices) {
+        core::require(vertices.size() >= 2, "GraphBuilder::add_path requires at least two vertices");
+        for (size_type i = 0; i + 1 < vertices.size(); ++i) {
+            add_edge(vertices[i], vertices[i + 1]);
+        }
+        return *this;
+    }
+
+    GraphBuilder& add_path(const std::initializer_list<node_type> vertices) {
+        return add_path(std::vector<node_type>(vertices));
+    }
+
+    GraphBuilder& add_cycle(const std::vector<node_type>& vertices) {
+        core::require(vertices.size() >= 3, "GraphBuilder::add_cycle requires at least three vertices");
+        add_path(vertices);
+        add_edge(vertices.back(), vertices.front());
+        return *this;
+    }
+
+    GraphBuilder& add_cycle(const std::initializer_list<node_type> vertices) {
+        return add_cycle(std::vector<node_type>(vertices));
+    }
+
+    GraphBuilder& add_clique(const std::vector<node_type>& vertices) {
+        for (size_type i = 0; i < vertices.size(); ++i) {
+            for (size_type j = i + 1; j < vertices.size(); ++j) {
+                add_edge(vertices[i], vertices[j]);
+                if (directed_) {
+                    add_edge(vertices[j], vertices[i]);
+                }
+            }
+        }
+        return *this;
+    }
+
+    GraphBuilder& add_clique(const std::initializer_list<node_type> vertices) {
+        return add_clique(std::vector<node_type>(vertices));
+    }
+
+    GraphBuilder& add_bipartite(const std::vector<node_type>& left, const std::vector<node_type>& right) {
+        for (const auto u : left) {
+            for (const auto v : right) {
+                add_edge(u, v);
+            }
+        }
+        return *this;
+    }
+
+    GraphBuilder& merge(const GraphBuilder& other) {
+        core::require(directed_ == other.directed_, "GraphBuilder::merge requires matching directed modes");
+        validate_endpoints_only();
+        other.validate_endpoints_only();
+
+        const size_type original_nodes = nodes_;
+        for (const auto& edge : other.edges_) {
+            edges_.push_back(edge_type{
+                relabel_other(edge.u, other, original_nodes),
+                relabel_other(edge.v, other, original_nodes),
+                edge.w,
+                edge.weighted
+            });
+        }
+        nodes_ += other.nodes_;
+        validate_label_capacity();
+        return *this;
+    }
+
+    GraphBuilder& renumber(const node_type first) {
+        for (auto& edge : edges_) {
+            edge.u = label_from(first, offset_of(edge.u));
+            edge.v = label_from(first, offset_of(edge.v));
+        }
+        first_ = first;
+        validate_label_capacity();
+        return *this;
+    }
+
+    GraphBuilder& shuffle_vertices(core::Random& rng) {
+        if (nodes_ < 2) {
+            return *this;
+        }
+        std::vector<node_type> labels;
+        labels.reserve(nodes_);
+        for (size_type i = 0; i < nodes_; ++i) {
+            labels.push_back(label_from(first_, i));
+        }
+        for (size_type i = labels.size() - 1; i > 0; --i) {
+            const size_type j = rng.integer<size_type>(0, i);
+            std::swap(labels[i], labels[j]);
+        }
+        for (auto& edge : edges_) {
+            edge.u = labels[offset_of(edge.u)];
+            edge.v = labels[offset_of(edge.v)];
+        }
+        validate_endpoints_only();
+        return *this;
+    }
+
+    GraphBuilder& shuffle_edges(core::Random& rng) {
+        if (edges_.size() < 2) {
+            return *this;
+        }
+        for (size_type i = edges_.size() - 1; i > 0; --i) {
+            const size_type j = rng.integer<size_type>(0, i);
+            std::swap(edges_[i], edges_[j]);
+        }
+        return *this;
+    }
+
+    GraphBuilder& remove_duplicate_edges() {
+        std::set<std::pair<node_type, node_type>> seen;
+        std::vector<edge_type> unique;
+        unique.reserve(edges_.size());
+        for (const auto& edge : edges_) {
+            validate_edge_endpoint(edge);
+            const auto key = edge_key(edge);
+            if (seen.insert(key).second) {
+                unique.push_back(edge);
+            }
+        }
+        edges_.swap(unique);
+        return *this;
+    }
+
+    GraphBuilder& complement() {
+        validate_simple_unweighted("GraphBuilder::complement");
+        std::set<std::pair<node_type, node_type>> existing;
+        for (const auto& edge : edges_) {
+            existing.insert(edge_key(edge));
+        }
+
+        std::vector<edge_type> result;
+        if (directed_) {
+            for (size_type u = 0; u < nodes_; ++u) {
+                for (size_type v = 0; v < nodes_; ++v) {
+                    if (u != v) {
+                        edge_type edge{label_from(first_, u), label_from(first_, v), 1, false};
+                        if (existing.find(edge_key(edge)) == existing.end()) {
+                            result.push_back(edge);
+                        }
+                    }
+                }
+            }
+        } else {
+            for (size_type u = 0; u + 1 < nodes_; ++u) {
+                for (size_type v = u + 1; v < nodes_; ++v) {
+                    edge_type edge{label_from(first_, u), label_from(first_, v), 1, false};
+                    if (existing.find(edge_key(edge)) == existing.end()) {
+                        result.push_back(edge);
+                    }
+                }
+            }
+        }
+        edges_.swap(result);
+        return *this;
+    }
+
+    [[nodiscard]] size_type nodes() const noexcept {
+        return nodes_;
+    }
+
+    [[nodiscard]] bool is_directed() const noexcept {
+        return directed_;
+    }
+
+    [[nodiscard]] std::vector<edge_type> build() const {
+        validate_simple();
+        return edges_;
+    }
+
+private:
+    size_type nodes_{0};
+    node_type first_{1};
+    bool directed_{false};
+    std::vector<edge_type> edges_;
+
+    [[nodiscard]] static node_type label_from(const node_type first, const size_type offset) noexcept {
+        return static_cast<node_type>(first + static_cast<node_type>(offset));
+    }
+
+    [[nodiscard]] bool contains(const node_type node) const noexcept {
+        return nodes_ > 0 && node >= first_ && node <= label_from(first_, nodes_ - 1);
+    }
+
+    [[nodiscard]] size_type offset_of(const node_type node) const {
+        core::require(contains(node), "GraphBuilder node label is outside the builder label range");
+        return static_cast<size_type>(node - first_);
+    }
+
+    [[nodiscard]] node_type relabel_other(const node_type node, const GraphBuilder& other, const size_type offset) const {
+        return label_from(first_, offset + other.offset_of(node));
+    }
+
+    void validate_label_capacity() const {
+        if (nodes_ == 0) {
+            return;
+        }
+        core::require(nodes_ <= static_cast<size_type>(2147483647), "GraphBuilder node count exceeds int label capacity");
+        (void)label_from(first_, nodes_ - 1);
+    }
+
+    GraphBuilder& add_edge_impl(const node_type u, const node_type v, const weight_type w, const bool weighted) {
+        edge_type edge{u, v, w, weighted};
+        validate_edge_endpoint(edge);
+        edges_.push_back(edge);
+        return *this;
+    }
+
+    void validate_edge_endpoint(const edge_type& edge) const {
+        core::require(contains(edge.u) && contains(edge.v), "GraphBuilder edge endpoint is outside the label range");
+        core::require(edge.u != edge.v, "GraphBuilder self-loops are not supported");
+    }
+
+    [[nodiscard]] std::pair<node_type, node_type> edge_key(const edge_type& edge) const noexcept {
+        if (directed_ || edge.u < edge.v) {
+            return std::make_pair(edge.u, edge.v);
+        }
+        return std::make_pair(edge.v, edge.u);
+    }
+
+    void validate_endpoints_only() const {
+        validate_label_capacity();
+        for (const auto& edge : edges_) {
+            validate_edge_endpoint(edge);
+        }
+    }
+
+    void validate_simple() const {
+        validate_endpoints_only();
+        std::set<std::pair<node_type, node_type>> seen;
+        for (const auto& edge : edges_) {
+            core::require(seen.insert(edge_key(edge)).second, "GraphBuilder duplicate edge is not allowed");
+        }
+    }
+
+    void validate_simple_unweighted(const char* name) const {
+        validate_endpoints_only();
+        std::set<std::pair<node_type, node_type>> seen;
+        for (const auto& edge : edges_) {
+            core::require(!edge.weighted, std::string(name) + " supports unweighted graphs only");
+            core::require(seen.insert(edge_key(edge)).second, std::string(name) + " supports simple graphs only");
+        }
+    }
+};
+
+inline GraphBuilder Graph::from_edges(const size_type n, const std::vector<edge_type>& edges, const bool directed, const node_type first) {
+    return GraphBuilder::from_edges(n, edges, directed, first);
+}
 
 } // namespace cp_stress_gen

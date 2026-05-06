@@ -196,16 +196,24 @@ Common API:
 - `forest(components)`, `connected_components(k)`, `bipartite(left_size)`
 - `wheel()`, `grid(rows, cols)`, `complete_bipartite(left, right)`, `tournament()`
 - `shuffle()`
+- `Graph::from_edges(n, edges, directed, first)`
+- `GraphBuilder::add_edge`, `add_path`, `add_cycle`, `add_clique`, `add_bipartite`
+- `GraphBuilder::merge`, `renumber`, `shuffle_vertices`, `shuffle_edges`, `remove_duplicate_edges`, `complement`, `build`
 
 Example:
 
 ```cpp
 auto edges = cp_stress_gen::Graph(8).edges(12).dag().no_multi_edges().build(rng);
+auto custom = cp_stress_gen::GraphBuilder(5)
+    .add_path({1, 2, 3})
+    .add_clique({3, 4, 5})
+    .remove_duplicate_edges()
+    .build();
 ```
 
-Validation: impossible edge counts, invalid partitions, invalid layer counts, invalid structure sizes, and incompatible directed modes throw.
+Validation: impossible edge counts, invalid partitions, invalid layer counts, invalid structure sizes, invalid builder labels, duplicate builder edges, self-loops, and incompatible directed modes throw.
 
-Limitations: advanced graph families and weighted shortest-path adversarial cases are intentionally deferred.
+Limitations: advanced graph families and weighted shortest-path adversarial cases are intentionally deferred. `GraphBuilder::complement()` supports simple unweighted graphs only.
 
 ### `Math`
 
