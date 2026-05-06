@@ -77,6 +77,7 @@ Phase 3 structures:
 - `examples/geometry_shapes.cpp`
 - `examples/anti_patterns.cpp`
 - `examples/printer_modifiers.cpp`
+- `examples/algorithm_killers.cpp`
 
 Existing focused examples remain available in `examples/`. See [English examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile commands and usage notes.
 
@@ -92,7 +93,7 @@ Existing focused examples remain available in `examples/`. See [English examples
 | Graphs | General, DAG, layered DAG, dense, sparse connected, complete, cycle, path, forest, components, bipartite, composable builders |
 | Math | gcd, lcm, divisors, primes, primality, random prime/composite, coprime pairs |
 | Geometry | Integer points, unique grid points, collinear, boundary, clustered, duplicates |
-| Anti patterns | Safe sort/tree/graph/string patterns with honest names |
+| Anti patterns | Safe sort/tree/graph/string and algorithm-targeted stress candidate patterns with honest names |
 
 ## Known Limitations
 
@@ -100,7 +101,7 @@ Existing focused examples remain available in `examples/`. See [English examples
 - No GUI or `TestSuite-Studio` bridge yet.
 - No guaranteed convex polygon generator yet.
 - Large-range prime generation is intentionally simple.
-- Advanced adversarial generators such as hash collision or Dijkstra-specific patterns are deferred.
+- Advanced adversarial generators such as true hash collision construction remain deferred; algorithm-targeted patterns are stress candidates, not guaranteed breakers.
 
 ## Development Checks
 

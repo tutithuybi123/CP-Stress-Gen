@@ -279,13 +279,22 @@ Common API:
 - `anti::TreeKiller::chain`, `star`, `chain_with_branches`, `broom`
 - `anti::GraphKiller::dense`, `long_dag_chain`, `sparse_connected`, `dense_dag`
 - `anti::StringKiller::repeated`, `alternating`, `prefix_heavy`, `kmp_prefix_pattern`
+- `anti::DfsBfsKiller::deep_chain`, `many_components`, `huge_branching`, `broom_tree`, `grid_maze_like`
+- `anti::DijkstraKiller::many_equal_distances`, `zero_weight_edges`, `dense_weighted_trap`, `layered_equal_shortest_paths`
+- `anti::DsuKiller::redundant_edges`, `delayed_connectivity`, `reverse_union_sequence`, `many_queries_same_component`
+- `anti::DpKiller::all_equal_array`, `monotonic_array`, `alternating_array`, `boundary_sizes`, `knapsack_tight_capacity`
+- `anti::GreedyKiller::local_optimum_trap_array`, `interval_scheduling_trap`, `coin_change_greedy_trap`
+- `anti::BinarySearchKiller::off_by_one_boundaries`, `lower_upper_bound_duplicates`, `all_false_then_true`, `all_true_then_false`
+- `anti::StringPatternKiller::kmp_worst_prefix`, `z_repeated_blocks`, `border_heavy`, `periodic_with_break`
+- `anti::HashKiller::repeated_base_sensitive_shapes`, `collision_like_patterns`
 
 Example:
 
 ```cpp
 auto values = cp_stress_gen::anti::SortKiller::many_duplicates(20, 3, rng);
+auto chain = cp_stress_gen::anti::DfsBfsKiller::deep_chain(100000);
 ```
 
 Validation: invalid sizes or counts throw where applicable.
 
-Limitations: these names describe input shapes. They do not guarantee that a specific algorithm will fail. Hash collisions, Dijkstra-specific patterns, and risky adversarial generators are not implemented.
+Limitations: these names describe input shapes. They do not guarantee that a specific algorithm will fail. Hash utilities provide collision-like patterns only; no true hash collision generator is implemented.

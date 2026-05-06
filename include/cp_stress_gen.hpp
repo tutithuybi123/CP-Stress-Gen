@@ -1,5 +1,6 @@
 #pragma once
 
+#include "anti/AlgorithmKiller.hpp"
 #include "anti/GraphKiller.hpp"
 #include "anti/SortKiller.hpp"
 #include "anti/StringKiller.hpp"

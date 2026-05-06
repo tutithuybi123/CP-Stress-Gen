@@ -74,6 +74,10 @@ public:
         }
         return result;
     }
+
+    [[nodiscard]] static std::vector<value_type> quicksort_bad_candidate(const size_type n, const value_type first = 1) {
+        return organ_pipe(n, first);
+    }
 };
 
 } // namespace cp_stress_gen::anti
