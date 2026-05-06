@@ -108,6 +108,8 @@ Allowed:
 
 - Run `scripts/check_all.ps1` before release commits.
 - Keep GitHub Actions CI on direct `g++` commands.
-- Do not commit generated artifacts such as `.tmp_build/`, `.exe`, `.o`, or `.obj`.
+- Regenerate `dist/cp_stress_gen.hpp` from `include/` before release commits that
+  change public headers.
+- Do not commit local build artifacts such as `.tmp_build/`, `.exe`, `.o`, or `.obj`.
 - Keep release notes in `CHANGELOG.md`.
 - Keep deferred or risky work documented instead of overclaiming support.

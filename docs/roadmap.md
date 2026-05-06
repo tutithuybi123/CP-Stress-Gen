@@ -71,8 +71,11 @@
 - README badges and links render correctly.
 - `CHANGELOG.md` has the intended version section.
 - `LICENSE` is present and MIT.
-- No generated artifacts are committed.
+- `dist/cp_stress_gen.hpp` is regenerated when public headers change.
+- No local build artifacts are committed.
 - Deferred work remains clearly marked.
+- For `v0.2.0`, Phase 5 and Phase 6 notes remain under `Unreleased` until the tag is
+  explicitly created.
 
 ## Deferred Work
 

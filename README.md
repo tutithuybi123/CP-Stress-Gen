@@ -88,7 +88,7 @@ Hard:
 - `examples/hard_graph_suite.cpp`
 - `examples/hard_anti_patterns.cpp`
 
-Phase 3 structures:
+Advanced and structure examples:
 
 - `examples/single_header_basic.cpp`
 - `examples/tree_degree_limit.cpp`

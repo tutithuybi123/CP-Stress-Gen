@@ -10,13 +10,23 @@ All notable changes to `CP-Stress-Gen` will be documented in this file.
 - Composable `TreeBuilder` and `GraphBuilder` APIs for custom structures.
 - Algorithm-targeted stress candidate patterns for DFS/BFS, Dijkstra, DSU, DP,
   greedy, binary search, string/hash, and sort workflows.
+- Single-header bundle generation through `scripts/bundle_single_header.ps1` and the
+  committed `dist/cp_stress_gen.hpp` release artifact.
 - String pattern helpers and rolling hash utilities.
-- Geometry orientation, area, convexity, and regular polygon candidate helpers.
+- Deeper string helpers including Thue-Morse, Fibonacci words, de Bruijn sequences,
+  border chains, and KMP/Z stress candidates.
+- Geometry orientation, area, convexity, segment, bounding-box, hull, and regular
+  polygon candidate helpers.
+- Math helpers for SPF sieves, Mobius, Euler phi, CRT, modular arithmetic, small
+  binomial values, factorials modulo `mod`, and random number-theory candidates.
+- Raw Markdown formatting cleanup for easier review and diffs.
 
 ### Notes
 
 - Algorithm-targeted patterns are candidate stress shapes, not guaranteed breakers.
 - True hash collision construction and arbitrary integer convex polygon generation remain deferred.
+- `include/` remains the source of truth; `dist/cp_stress_gen.hpp` is generated for
+  copy-only use.
 
 ## [0.1.0] - 2026-05-05
 

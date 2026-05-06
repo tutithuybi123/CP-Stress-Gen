@@ -2,7 +2,8 @@
 
 This page summarizes the public C++17 API exposed by `include/cp_stress_gen.hpp`. The
 library is header-only and uses `std::invalid_argument` for invalid generator
-configurations.
+configurations. Copy-only workflows may use the generated `dist/cp_stress_gen.hpp`
+bundle, but `include/` remains the source of truth.
 
 The API includes both preset generators for common shapes and composable builders for
 custom tree/graph structures. Algorithm-targeted anti-pattern helpers are documented as
