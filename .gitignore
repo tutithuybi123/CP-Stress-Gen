@@ -1,5 +1,6 @@
 .tmp_build/
 *.exe
+*.inp
 *.o
 *.obj
 *.out
@@ -10,4 +11,3 @@
 Thumbs.db
 .vscode/
 .idea/
-
