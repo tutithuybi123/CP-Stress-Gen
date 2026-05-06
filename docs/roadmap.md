@@ -122,6 +122,27 @@
   add number theory, modular, and combinatorics helpers.
   Acceptance: math helpers have known-value tests.
 
+## v0.3.0: Usability and Integration
+
+- Options parser:
+  add a small C++17 command-line helper for generator scripts.
+  Acceptance: options tests cover values, flags, defaults, required values, and errors.
+- Contest workflow examples:
+  add portable Polygon-style, Themis-style, local stress, and batch file examples.
+  Acceptance: all examples compile without external programs or platform SDKs.
+- Package-free install docs:
+  improve `include/`, `dist/`, vendoring, and troubleshooting guidance.
+  Acceptance: English and Vietnamese installation docs cover copy-only workflows.
+- Benchmark examples:
+  show simple generator timing patterns without performance overclaims.
+  Acceptance: benchmark examples compile through direct `g++` checks.
+- Cookbook docs:
+  add task-oriented English and Vietnamese recipes for common generators.
+  Acceptance: README links the cookbook and recipes reference existing APIs.
+- Release notes:
+  prepare `CHANGELOG.md` for `v0.3.0` without creating the tag.
+  Acceptance: v0.3.0 notes describe implemented work before tagging.
+
 ## Release Checklist
 
 - `scripts/check_all.ps1` passes locally.

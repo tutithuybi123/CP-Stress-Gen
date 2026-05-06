@@ -2,6 +2,23 @@
 
 All notable changes to `CP-Stress-Gen` will be documented in this file.
 
+## [0.3.0] - Unreleased
+
+### Added
+
+- Planned command-line options helper for generator scripts.
+- Planned portable Polygon, Themis, and local stress-test workflow examples.
+- Planned benchmark examples and practical cookbook documentation.
+
+### Changed
+
+- Planned package-free installation and single-header usage documentation updates.
+
+### Notes
+
+- No CMake, external dependencies, or `v0.3.0` tag are planned in this development
+  batch.
+
 ## [0.2.0] - 2026-05-06
 
 ### Added
