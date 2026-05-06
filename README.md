@@ -103,6 +103,7 @@ Phase 3 structures:
 - `examples/string_deep_patterns.cpp`
 - `examples/hash_patterns.cpp`
 - `examples/geometry_deep.cpp`
+- `examples/math_deep.cpp`
 
 Existing focused examples remain available in `examples/`. See [English
 examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile
@@ -118,7 +119,7 @@ commands and usage notes.
 | Permutations | One-based/zero-based, shuffle, reversed, cyclic shift, few swaps, blocks |
 | Trees | Bamboo, star, random, binary, caterpillar, deep recursion, weighted edges, composable builders |
 | Graphs | General, DAG, layered DAG, dense, sparse connected, complete, cycle, path, forest, components, bipartite, composable builders |
-| Math | gcd, lcm, divisors, primes, primality, random prime/composite, coprime pairs |
+| Math | gcd, lcm, divisors, SPF sieve, phi, Mobius, CRT, modular arithmetic, combinatorics, random number helpers |
 | Geometry | Integer/grid/circle points, segment tests, convex hull, bounding boxes, polygon helpers |
 | Anti patterns | Safe sort/tree/graph/string and algorithm-targeted stress candidate patterns with honest names |
 

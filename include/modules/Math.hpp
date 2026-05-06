@@ -18,6 +18,12 @@ public:
         long long y;
     };
 
+    struct CrtResult {
+        long long value;
+        long long mod;
+        bool compatible;
+    };
+
     [[nodiscard]] static long long gcd(long long a, long long b) noexcept {
         if (a < 0) {
             a = -a;
@@ -85,6 +91,55 @@ public:
         return result;
     }
 
+    [[nodiscard]] static std::vector<int> sieve_spf(const int n) {
+        core::require(n >= 0, "Math::sieve_spf requires n >= 0");
+        std::vector<int> spf(static_cast<std::size_t>(n + 1), 0);
+        if (n >= 1) {
+            spf[1] = 1;
+        }
+
+        for (int x = 2; x <= n; ++x) {
+            if (spf[static_cast<std::size_t>(x)] != 0) {
+                continue;
+            }
+            spf[static_cast<std::size_t>(x)] = x;
+            if (x > n / x) {
+                continue;
+            }
+            for (int multiple = x * x; multiple <= n; multiple += x) {
+                if (spf[static_cast<std::size_t>(multiple)] == 0) {
+                    spf[static_cast<std::size_t>(multiple)] = x;
+                }
+            }
+        }
+        return spf;
+    }
+
+    [[nodiscard]] static std::vector<std::pair<long long, int>> factorize_spf(
+        int value,
+        const std::vector<int>& spf
+    ) {
+        core::require(value >= 2, "Math::factorize_spf requires value >= 2");
+        core::require(
+            static_cast<std::size_t>(value) < spf.size(),
+            "Math::factorize_spf requires value inside the SPF table"
+        );
+
+        std::vector<std::pair<long long, int>> result;
+        while (value > 1) {
+            const int prime = spf[static_cast<std::size_t>(value)];
+            core::require(prime >= 2, "Math::factorize_spf received an invalid SPF table");
+            core::require(value % prime == 0, "Math::factorize_spf received an invalid SPF table");
+            int exponent = 0;
+            while (value % prime == 0) {
+                value /= prime;
+                ++exponent;
+            }
+            result.push_back(std::make_pair(static_cast<long long>(prime), exponent));
+        }
+        return result;
+    }
+
     [[nodiscard]] static bool is_prime(const long long n) noexcept {
         if (n < 2) {
             return false;
@@ -98,6 +153,76 @@ public:
             }
         }
         return true;
+    }
+
+    [[nodiscard]] static long long euler_phi(const long long n) {
+        core::require(n > 0, "Math::euler_phi requires n > 0");
+        long long result = n;
+        const auto factors = factorize_trial(n);
+        for (const auto& factor : factors) {
+            result = result / factor.first * (factor.first - 1);
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::vector<int> mobius_up_to(const int n) {
+        core::require(n >= 0, "Math::mobius_up_to requires n >= 0");
+        std::vector<int> mu(static_cast<std::size_t>(n + 1), 0);
+        std::vector<int> primes;
+        std::vector<bool> composite(static_cast<std::size_t>(n + 1), false);
+        if (n >= 1) {
+            mu[1] = 1;
+        }
+
+        for (int x = 2; x <= n; ++x) {
+            if (!composite[static_cast<std::size_t>(x)]) {
+                primes.push_back(x);
+                mu[static_cast<std::size_t>(x)] = -1;
+            }
+            for (const int prime : primes) {
+                if (prime > n / x) {
+                    break;
+                }
+                const int next = x * prime;
+                composite[static_cast<std::size_t>(next)] = true;
+                if (x % prime == 0) {
+                    mu[static_cast<std::size_t>(next)] = 0;
+                    break;
+                }
+                mu[static_cast<std::size_t>(next)] = -mu[static_cast<std::size_t>(x)];
+            }
+        }
+        return mu;
+    }
+
+    [[nodiscard]] static long long divisor_count_from_factorization(
+        const std::vector<std::pair<long long, int>>& factors
+    ) {
+        long long result = 1;
+        for (const auto& factor : factors) {
+            core::require(factor.first > 1, "Math::divisor_count_from_factorization requires primes > 1");
+            core::require(factor.second >= 0, "Math::divisor_count_from_factorization requires exponents >= 0");
+            result *= static_cast<long long>(factor.second + 1);
+        }
+        return result;
+    }
+
+    [[nodiscard]] static long long divisor_sum_from_factorization(
+        const std::vector<std::pair<long long, int>>& factors
+    ) {
+        long long result = 1;
+        for (const auto& factor : factors) {
+            core::require(factor.first > 1, "Math::divisor_sum_from_factorization requires primes > 1");
+            core::require(factor.second >= 0, "Math::divisor_sum_from_factorization requires exponents >= 0");
+            long long term = 1;
+            long long power = 1;
+            for (int i = 0; i < factor.second; ++i) {
+                power *= factor.first;
+                term += power;
+            }
+            result *= term;
+        }
+        return result;
     }
 
     [[nodiscard]] static int random_prime(const int left, const int right, core::Random& rng) {
@@ -162,6 +287,16 @@ public:
         return std::make_pair(g * multipliers.first, g * multipliers.second);
     }
 
+    [[nodiscard]] static long long mod_add(const long long a, const long long b, const long long mod) {
+        core::require(mod > 0, "Math::mod_add requires mod > 0");
+        return add_mod(normalize_mod(a, mod), normalize_mod(b, mod), mod);
+    }
+
+    [[nodiscard]] static long long mod_mul(const long long a, const long long b, const long long mod) {
+        core::require(mod > 0, "Math::mod_mul requires mod > 0");
+        return mul_mod(normalize_mod(a, mod), normalize_mod(b, mod), mod);
+    }
+
     [[nodiscard]] static long long mod_pow(long long base, long long exponent, const long long mod) {
         core::require(mod > 0, "Math::mod_pow requires mod > 0");
         core::require(exponent >= 0, "Math::mod_pow requires exponent >= 0");
@@ -217,6 +352,29 @@ public:
         return normalize_mod(result.x, mod);
     }
 
+    [[nodiscard]] static CrtResult crt_pair(
+        const long long a1,
+        const long long m1,
+        const long long a2,
+        const long long m2
+    ) {
+        core::require(m1 > 0, "Math::crt_pair requires positive moduli");
+        core::require(m2 > 0, "Math::crt_pair requires positive moduli");
+
+        const ExtendedGcdResult eg = extended_gcd(m1, m2);
+        const long long diff = a2 - a1;
+        const long long g = eg.gcd;
+        const long long lcm_mod = m1 / g * m2;
+        if (diff % g != 0) {
+            return CrtResult{0, lcm_mod, false};
+        }
+
+        const long long reduced_mod = m2 / g;
+        const long long step = mod_mul(diff / g, eg.x, reduced_mod);
+        const long long value = normalize_mod(a1 + step * m1, lcm_mod);
+        return CrtResult{value, lcm_mod, true};
+    }
+
     [[nodiscard]] static std::vector<std::pair<long long, int>> factorize_trial(long long value) {
         value = std::llabs(value);
         std::vector<std::pair<long long, int>> result;
@@ -239,6 +397,87 @@ public:
             result.push_back(std::make_pair(value, 1));
         }
         return result;
+    }
+
+    [[nodiscard]] static long long binom_small(long long n, long long k) {
+        core::require(n >= 0, "Math::binom_small requires n >= 0");
+        core::require(k >= 0, "Math::binom_small requires k >= 0");
+        if (k > n) {
+            return 0;
+        }
+        if (k > n - k) {
+            k = n - k;
+        }
+
+        long long result = 1;
+        for (long long i = 1; i <= k; ++i) {
+            const long long numerator = n - k + i;
+            const long long g1 = gcd(result, i);
+            const long long reduced_result = result / g1;
+            const long long reduced_i = i / g1;
+            const long long g2 = gcd(numerator, reduced_i);
+            result = reduced_result * (numerator / g2);
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::vector<long long> factorials_mod(const int n, const long long mod) {
+        core::require(n >= 0, "Math::factorials_mod requires n >= 0");
+        core::require(mod > 0, "Math::factorials_mod requires mod > 0");
+        std::vector<long long> result(static_cast<std::size_t>(n + 1), 1 % mod);
+        for (int i = 1; i <= n; ++i) {
+            result[static_cast<std::size_t>(i)] = mod_mul(result[static_cast<std::size_t>(i - 1)], i, mod);
+        }
+        return result;
+    }
+
+    [[nodiscard]] static int random_prime_sieve(const int left, const int right, core::Random& rng) {
+        core::require_range(left, right, "Math::random_prime_sieve requires left <= right");
+        core::require(right >= 2, "Math::random_prime_sieve found no prime in range");
+        const auto spf = sieve_spf(right);
+        std::vector<int> candidates;
+        for (int value = std::max(2, left); value <= right; ++value) {
+            if (spf[static_cast<std::size_t>(value)] == value) {
+                candidates.push_back(value);
+            }
+        }
+        core::require(!candidates.empty(), "Math::random_prime_sieve found no prime in range");
+        const std::size_t index = rng.integer<std::size_t>(0, candidates.size() - 1);
+        return candidates[index];
+    }
+
+    [[nodiscard]] static std::pair<long long, long long> random_coprime_pair(
+        const long long left,
+        const long long right,
+        core::Random& rng
+    ) {
+        return coprime_pair(left, right, rng);
+    }
+
+    [[nodiscard]] static int random_number_with_many_divisors(const int limit, core::Random& rng) {
+        core::require(limit >= 1, "Math::random_number_with_many_divisors requires limit >= 1");
+        std::vector<int> divisor_counts(static_cast<std::size_t>(limit + 1), 0);
+        for (int divisor = 1; divisor <= limit; ++divisor) {
+            for (int multiple = divisor; multiple <= limit; multiple += divisor) {
+                ++divisor_counts[static_cast<std::size_t>(multiple)];
+            }
+        }
+
+        int best_count = 0;
+        std::vector<int> candidates;
+        for (int value = 1; value <= limit; ++value) {
+            const int count = divisor_counts[static_cast<std::size_t>(value)];
+            if (count > best_count) {
+                best_count = count;
+                candidates.clear();
+            }
+            if (count == best_count) {
+                candidates.push_back(value);
+            }
+        }
+
+        const std::size_t index = rng.integer<std::size_t>(0, candidates.size() - 1);
+        return candidates[index];
     }
 
 private:

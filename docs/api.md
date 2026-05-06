@@ -254,26 +254,38 @@ Common API:
 - `gcd(a, b)`, `lcm(a, b)`
 - `divisors(n)`
 - `primes_up_to(n)`, `is_prime(n)`
+- `sieve_spf(n)`, `factorize_spf(value, spf)`
+- `euler_phi(n)`, `mobius_up_to(n)`
+- `divisor_count_from_factorization(factors)`, `divisor_sum_from_factorization(factors)`
 - `random_prime(left, right, rng)`
+- `random_prime_sieve(left, right, rng)`
 - `random_composite(left, right, rng)`
 - `coprime_pair(left, right, rng)`
+- `random_coprime_pair(left, right, rng)`
+- `random_number_with_many_divisors(limit, rng)`
 - `with_gcd(g, multiplier_left, multiplier_right, rng)`
+- `mod_add(a, b, mod)`, `mod_mul(a, b, mod)`
 - `mod_pow(base, exponent, mod)`
 - `extended_gcd(a, b)`
 - `mod_inverse(value, mod)`
+- `crt_pair(a1, m1, a2, m2)`
 - `factorize_trial(value)`
+- `binom_small(n, k)`, `factorials_mod(n, mod)`
 
 Example:
 
 ```cpp
 auto pair = cp_stress_gen::Math::with_gcd(6, 1, 20, rng);
+auto crt = cp_stress_gen::Math::crt_pair(2, 3, 3, 5);
 ```
 
 Validation: invalid ranges, impossible prime/composite/coprime requests, invalid modular
-parameters, and missing modular inverses throw.
+parameters, invalid SPF lookups, invalid factorization metadata, incompatible helper
+inputs, and missing modular inverses throw.
 
 Limitations: primality and factor-related helpers use simple algorithms and do not
-target huge ranges.
+target huge ranges. CRT and divisor helpers use `long long` arithmetic and do not claim
+overflow-proof arbitrary-precision behavior.
 
 ### `Geometry`
 
