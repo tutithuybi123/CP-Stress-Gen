@@ -14,12 +14,14 @@ examples for local stress testing.
 - [English documentation](docs/en/overview.md)
 - [English installation guide](docs/en/installation.md)
 - [English integration workflows](docs/en/integrations.md)
+- [English benchmark notes](docs/en/benchmarks.md)
 - [API reference](docs/api.md)
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 - [Tài liệu tiếng Việt](docs/vn/overview.md)
 - [Tài liệu cài đặt tiếng Việt](docs/vn/installation.md)
 - [Tích hợp quy trình tiếng Việt](docs/vn/integrations.md)
+- [Ghi chú benchmark tiếng Việt](docs/vn/benchmarks.md)
 
 ## Requirements
 
@@ -117,6 +119,9 @@ Advanced and structure examples:
 - `examples/themis_generator.cpp`
 - `examples/local_stress_driver.cpp`
 - `examples/batch_file_output.cpp`
+- `examples/benchmark_array.cpp`
+- `examples/benchmark_graph.cpp`
+- `examples/benchmark_string.cpp`
 
 Existing focused examples remain available in `examples/`. See [English
 examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile
