@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
 
-`CP-Stress-Gen` is a lightweight, header-only C++17 library for competitive programming test generation. It provides fluent generators, deterministic seeded output, validation helpers, simple printers, and practical examples for local stress testing.
+`CP-Stress-Gen` is a lightweight, header-only C++17 library for competitive programming test generation. It provides fluent preset generators, composable tree/graph builders, deterministic seeded output, validation helpers, ergonomic printers, and practical examples for local stress testing.
 
 ## Documentation
 
@@ -102,6 +102,10 @@ Existing focused examples remain available in `examples/`. See [English examples
 - No guaranteed convex polygon generator yet.
 - Large-range prime generation is intentionally simple.
 - Advanced adversarial generators such as true hash collision construction remain deferred; algorithm-targeted patterns are stress candidates, not guaranteed breakers.
+
+## Comparison Notes
+
+`jngen` remains an older and rich generator library with many established ideas. `CP-Stress-Gen` takes a smaller C++17-focused direction: explicit RNG objects, direct `g++` checks, CI, bilingual documentation, composable builders, and examples built around local stress-test workflows.
 
 ## Development Checks
 

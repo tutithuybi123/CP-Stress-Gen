@@ -43,6 +43,17 @@
 | Done | README badges | Show CI, license, and C++17 status. | Badges link to the existing workflow, license, and C++17 reference. |
 | Done | Release consistency | Review public docs for Phase 4 release readiness. | Docs avoid unsupported feature claims. |
 
+## Phase 5: Advanced Generators
+
+| Status | Task | Objective | Acceptance Criteria |
+| --- | --- | --- | --- |
+| Done | Printer modifiers | Make output formatting more ergonomic. | Indexed views, matrix/grid helpers, testcase output, and edge headers are tested. |
+| Done | Tree composition | Support custom tree construction beyond presets. | `TreeBuilder` attach/merge/relabel/shuffle paths compile and pass connectivity tests. |
+| Done | Graph composition | Support custom graph construction and complements. | `GraphBuilder` path/cycle/clique/bipartite/merge/complement behavior is tested. |
+| Done | Algorithm-targeted patterns | Add stress candidate shapes for common algorithm families. | Patterns have invariant tests and honest docs. |
+| Done | String/hash utilities | Add string pattern helpers and rolling hash utilities. | Hash helpers and string invariants are tested. |
+| Done | Geometry helpers | Add safe polygon measurements and regular polygon candidates. | Orientation, area, convexity, and invalid inputs are tested. |
+
 ## Release Checklist
 
 - `scripts/check_all.ps1` passes locally.
@@ -59,6 +70,6 @@
 - CMake/package manager integration.
 - Arbitrary convex polygon generation.
 - Large-range prime generation.
-- Hash collision generators.
-- Dijkstra-specific adversarial generators.
+- True hash collision generators.
+- Mathematically proven Dijkstra-specific breaker generators.
 - Contest-validator/interactor features comparable to `testlib.h`.

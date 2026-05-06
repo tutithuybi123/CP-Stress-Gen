@@ -39,6 +39,10 @@ auto edges = cp_stress_gen::Graph(8)
 
 Invalid configurations should throw before producing output.
 
+## Composable Builders
+
+Preset generators cover common shapes. Builder APIs such as `TreeBuilder` and `GraphBuilder` cover custom structures by composing paths, stars, cliques, components, and explicit edge lists. Public builder inputs use the builder's current label space, and merge or attach operations relabel internally when needed to avoid collisions.
+
 ## Edge Convention
 
 Tree and graph edge structs expose predictable fields:
@@ -63,6 +67,10 @@ Use `cp_stress_gen::core::require` helpers for invalid configurations:
 - impossible unique point requests
 
 Prefer throwing `std::invalid_argument` over silently changing user intent.
+
+## Algorithm-Targeted Patterns
+
+Anti-pattern helpers describe candidate stress shapes for algorithm testing. They should not claim to break an algorithm unless the implementation includes a specific proof or test for that claim. Hash helpers currently provide collision-like shapes, not true hash collision construction.
 
 ## C++17 Compatibility
 
