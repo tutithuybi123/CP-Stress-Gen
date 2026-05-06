@@ -87,7 +87,7 @@ Existing focused examples remain available in `examples/`. See [English examples
 | --- | --- |
 | Core | Xoshiro256**, validation helpers, printer modifiers, matrix/grid/vector/edge printing |
 | Arrays | Ranges, fill, iota, shuffle, almost sorted, many equal, blocky |
-| Strings | Alphabets, ranges, palindrome, almost palindrome, periodic, prefix-heavy |
+| Strings | Alphabets, ranges, palindrome, periodic, border-heavy, runs, hash utilities |
 | Permutations | One-based/zero-based, shuffle, reversed, cyclic shift, few swaps, blocks |
 | Trees | Bamboo, star, random, binary, caterpillar, deep recursion, weighted edges, composable builders |
 | Graphs | General, DAG, layered DAG, dense, sparse connected, complete, cycle, path, forest, components, bipartite, composable builders |

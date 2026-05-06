@@ -115,16 +115,23 @@ Common API:
 - `almost_palindrome(changes)`
 - `periodic(pattern)`
 - `prefix_heavy(prefix_char, tail_char)`
+- `border_heavy()`
+- `runs(run_length)`
+- `periodic_with_noise(pattern, changes)`
+- `random_palindromic_blocks(block_size)`
+- `String::de_bruijn_binary(k)`
+- `StringHash::hash_string`, `same_hash`, `collision_like_pair`
 
 Example:
 
 ```cpp
 auto s = cp_stress_gen::String(12).periodic("abc").build(rng);
+auto h = cp_stress_gen::StringHash::hash_string(s, 911382323, 1000000007);
 ```
 
-Validation: empty alphabets, invalid ranges, empty periodic patterns, and excessive almost-palindrome changes throw.
+Validation: empty alphabets, invalid ranges, empty periodic/noise patterns, excessive mutation counts, invalid run/block sizes, and invalid hash parameters throw.
 
-Limitations: string generation is byte-oriented and does not handle Unicode grapheme logic.
+Limitations: string generation is byte-oriented and does not handle Unicode grapheme logic. Hash helpers do not generate true collisions.
 
 ### `Permutation`
 
