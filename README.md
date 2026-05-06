@@ -73,6 +73,8 @@ g++ -std=c++17 -Wall -Wextra -pedantic `
 ```
 
 Do not edit `dist/cp_stress_gen.hpp` manually. Regenerate it from `include/`.
+For full package-free setup, see the English or Vietnamese installation guide linked
+above.
 
 ## Examples
 

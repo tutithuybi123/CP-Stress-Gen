@@ -1,32 +1,34 @@
 # Cài đặt
 
-`CP-Stress-Gen` là thư viện header-only. Cài đặt thư viện nghĩa là tải project về và biên dịch trình sinh dữ liệu của bạn với đúng đường dẫn include.
+CP-Stress-Gen là thư viện header-only. Bạn không cần package manager, CMake hay thư
+viện phụ thuộc bên ngoài. Chỉ cần tải project rồi biên dịch trình sinh dữ liệu với
+đường dẫn include đúng, hoặc dùng single-header trong thư mục `dist/`.
 
 ## Yêu cầu
 
 - Trình biên dịch hỗ trợ C++17.
-- `g++` nếu bạn muốn dùng trực tiếp các lệnh bên dưới.
-- Không cần thư viện phụ thuộc bên ngoài.
+- `g++` nếu muốn dùng trực tiếp các lệnh bên dưới.
+- PowerShell nếu muốn chạy script có sẵn trên Windows.
 
 ## Tải project
 
-Cách 1: clone bằng Git.
+Clone bằng Git:
 
 ```powershell
 git clone https://github.com/tutithuybi123/CP-Stress-Gen.git
 cd CP-Stress-Gen
 ```
 
-Cách 2: tải file ZIP từ GitHub.
+Hoặc tải file ZIP từ GitHub:
 
 1. Mở `https://github.com/tutithuybi123/CP-Stress-Gen`.
 2. Chọn `Code` -> `Download ZIP`.
 3. Giải nén file ZIP.
 4. Mở PowerShell trong thư mục `CP-Stress-Gen` vừa giải nén.
 
-## Kiểm tra cấu trúc project
+## Kiểm tra cấu trúc
 
-Project cần có các đường dẫn sau:
+Các header gốc nằm trong:
 
 ```text
 include/cp_stress_gen.hpp
@@ -35,43 +37,59 @@ include/modules/
 include/anti/
 ```
 
-Header tổng là:
+Single-header đã sinh sẵn nằm tại:
+
+```text
+dist/cp_stress_gen.hpp
+```
+
+## Cách 1: dùng thư mục include
+
+Dùng cách này khi bạn giữ nguyên cả repository:
+
+```powershell
+New-Item -ItemType Directory -Force .tmp_build
+g++ -std=c++17 -Wall -Wextra -pedantic `
+    -Iinclude examples/easy_array_sum.cpp `
+    -o .tmp_build/easy_array_sum.exe
+.\.tmp_build\easy_array_sum.exe
+```
+
+Nếu dùng từ một project đặt cạnh `CP-Stress-Gen`:
+
+```powershell
+g++ -std=c++17 -Wall -Wextra -pedantic `
+    -I..\CP-Stress-Gen\include generator.cpp `
+    -o generator.exe
+```
+
+## Cách 2: dùng single-header
+
+Dùng cách này khi muốn copy một file vào template cá nhân:
 
 ```cpp
 #include "cp_stress_gen.hpp"
 ```
 
-## Cách 1: biên dịch ngay trong project
-
-Từ thư mục `CP-Stress-Gen`:
+Biên dịch với thư mục `dist/`:
 
 ```powershell
-New-Item -ItemType Directory -Force .tmp_build
-g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude examples/easy_array_sum.cpp -o .tmp_build/easy_array_sum.exe
-.\.tmp_build\easy_array_sum.exe
+g++ -std=c++17 -Wall -Wextra -pedantic `
+    -Idist examples/single_header_basic.cpp `
+    -o .tmp_build/single_header_basic.exe
 ```
 
-`-Iinclude` cho trình biên dịch biết nơi chứa `cp_stress_gen.hpp`.
+Bạn có thể copy `dist/cp_stress_gen.hpp` vào thư mục template cá nhân rồi thêm thư mục
+đó vào đường dẫn include khi biên dịch.
 
-## Cách 2: dùng từ project khác
+## Cập nhật single-header
 
-Đặt `CP-Stress-Gen` cạnh project của bạn:
-
-```text
-workspace/
-  CP-Stress-Gen/
-  MyGenerator/
-    generator.cpp
-```
-
-Biên dịch từ thư mục `MyGenerator/`:
+Thư mục `include/` là nguồn chính. Sau khi sửa public header, sinh lại
+`dist/cp_stress_gen.hpp` bằng lệnh:
 
 ```powershell
-g++ -std=c++17 -Wall -Wextra -pedantic -I..\CP-Stress-Gen\include generator.cpp -o generator.exe
-.\generator.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\bundle_single_header.ps1
 ```
-
-Bạn cũng có thể sao chép riêng thư mục `include/` vào project của mình và biên dịch với đường dẫn include đã sao chép.
 
 ## Trình sinh dữ liệu tối thiểu
 
@@ -94,17 +112,11 @@ int main() {
 }
 ```
 
-Biên dịch từ một thư mục truy cập được `CP-Stress-Gen/include`:
-
-```powershell
-g++ -std=c++17 -Wall -Wextra -pedantic -I..\CP-Stress-Gen\include generator.cpp -o generator.exe
-.\generator.exe
-```
+Biên dịch với `-Iinclude`, `-Idist`, hoặc đường dẫn đến thư mục chứa header bạn đã copy.
 
 ## Xử lý lỗi thường gặp
 
-- `cp_stress_gen.hpp: No such file or directory`: đường dẫn include đang sai. Hãy kiểm tra phần đường dẫn sau `-I`.
-- Lỗi cú pháp C++ hoặc lỗi liên quan `if constexpr`: hãy biên dịch với `-std=c++17` hoặc mới hơn.
-- Lỗi đường dẫn trên Windows: nên dùng đường dẫn tương đối thân thiện với PowerShell, ví dụ `..\CP-Stress-Gen\include`.
-- `.tmp_build/` chỉ là thư mục output cục bộ khi biên dịch. Không commit thư mục này.
-
+- `cp_stress_gen.hpp: No such file or directory`: đường dẫn sau `-I` đang sai.
+- Lỗi cú pháp C++ hoặc `if constexpr`: hãy thêm `-std=c++17`.
+- PowerShell chặn script: chạy với `-ExecutionPolicy Bypass` như ví dụ ở trên.
+- `.tmp_build/`, `.exe`, `.inp` và `.out` là output cục bộ, không nên commit.

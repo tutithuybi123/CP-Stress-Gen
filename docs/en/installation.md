@@ -1,23 +1,25 @@
 # Installation
 
-`CP-Stress-Gen` is header-only. Installing it means downloading the project and compiling your generator with the correct include path.
+CP-Stress-Gen is header-only. There is no package manager, CMake project, or external
+library to install. Download the repository, then compile your generator with either
+`include/` or the generated single-header bundle in `dist/`.
 
 ## Requirements
 
 - A C++17 compiler.
-- `g++` if you want to use the commands below directly.
-- No external libraries.
+- `g++` for the commands below.
+- PowerShell if you want to run the bundled scripts on Windows.
 
-## Download The Project
+## Download
 
-Option 1: clone with Git.
+Clone with Git:
 
 ```powershell
 git clone https://github.com/tutithuybi123/CP-Stress-Gen.git
 cd CP-Stress-Gen
 ```
 
-Option 2: download ZIP from GitHub.
+Or download the ZIP from GitHub:
 
 1. Open `https://github.com/tutithuybi123/CP-Stress-Gen`.
 2. Choose `Code` -> `Download ZIP`.
@@ -26,7 +28,7 @@ Option 2: download ZIP from GitHub.
 
 ## Verify The Layout
 
-The project should contain:
+The source-of-truth headers are:
 
 ```text
 include/cp_stress_gen.hpp
@@ -35,45 +37,61 @@ include/modules/
 include/anti/
 ```
 
-The umbrella header is:
+The generated single-header bundle is:
+
+```text
+dist/cp_stress_gen.hpp
+```
+
+## Use Method 1: Include Directory
+
+Use this when you keep the whole repository available:
+
+```powershell
+New-Item -ItemType Directory -Force .tmp_build
+g++ -std=c++17 -Wall -Wextra -pedantic `
+    -Iinclude examples/easy_array_sum.cpp `
+    -o .tmp_build/easy_array_sum.exe
+.\.tmp_build\easy_array_sum.exe
+```
+
+From a sibling project:
+
+```powershell
+g++ -std=c++17 -Wall -Wextra -pedantic `
+    -I..\CP-Stress-Gen\include generator.cpp `
+    -o generator.exe
+```
+
+## Use Method 2: Single Header
+
+Use this when you want to copy one file into a contest template:
 
 ```cpp
 #include "cp_stress_gen.hpp"
 ```
 
-## Method 1: Compile Inside This Project
-
-From the `CP-Stress-Gen` folder:
+Compile against `dist/`:
 
 ```powershell
-New-Item -ItemType Directory -Force .tmp_build
-g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude examples/easy_array_sum.cpp -o .tmp_build/easy_array_sum.exe
-.\.tmp_build\easy_array_sum.exe
+g++ -std=c++17 -Wall -Wextra -pedantic `
+    -Idist examples/single_header_basic.cpp `
+    -o .tmp_build/single_header_basic.exe
 ```
 
-`-Iinclude` tells the compiler where to find `cp_stress_gen.hpp`.
+You can copy `dist/cp_stress_gen.hpp` into your personal template folder and compile
+with that folder on the include path.
 
-## Method 2: Use From Another Project
+## Update The Bundle
 
-Keep `CP-Stress-Gen` next to your own project:
-
-```text
-workspace/
-  CP-Stress-Gen/
-  MyGenerator/
-    generator.cpp
-```
-
-Compile from `MyGenerator/`:
+`include/` is authoritative. Regenerate `dist/cp_stress_gen.hpp` after public header
+changes:
 
 ```powershell
-g++ -std=c++17 -Wall -Wextra -pedantic -I..\CP-Stress-Gen\include generator.cpp -o generator.exe
-.\generator.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\bundle_single_header.ps1
 ```
 
-You can also copy only the `include/` folder into your own project and compile with that copied include path.
-
-## Minimal Working Generator
+## Minimal Generator
 
 Create `generator.cpp`:
 
@@ -94,17 +112,12 @@ int main() {
 }
 ```
 
-Compile it from a folder that has access to `CP-Stress-Gen/include`:
-
-```powershell
-g++ -std=c++17 -Wall -Wextra -pedantic -I..\CP-Stress-Gen\include generator.cpp -o generator.exe
-.\generator.exe
-```
+Compile with either `-Iinclude`, `-Idist`, or the path to your copied header.
 
 ## Troubleshooting
 
-- `cp_stress_gen.hpp: No such file or directory`: the include path is wrong. Check the path passed after `-I`.
-- C++ language or `if constexpr` errors: compile with `-std=c++17` or newer.
-- Windows path issues: use PowerShell-friendly relative paths such as `..\CP-Stress-Gen\include`.
-- `.tmp_build/` is local build output. Do not commit it.
-
+- `cp_stress_gen.hpp: No such file or directory`: the include path after `-I` is wrong.
+- C++ syntax or `if constexpr` errors: add `-std=c++17`.
+- PowerShell script blocked: run with `-ExecutionPolicy Bypass` as shown above.
+- `.tmp_build/`, `.exe`, `.inp`, and `.out` files are local outputs and should not be
+  committed.
