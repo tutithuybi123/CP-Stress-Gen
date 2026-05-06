@@ -54,6 +54,34 @@ Validation: failed checks throw `std::invalid_argument`.
 
 Limitations: helpers intentionally stay small and do not define custom exception types.
 
+### `core::Options`
+
+Purpose: parse small command-line option sets for generator scripts.
+
+Common API:
+
+- `Options(argc, argv)`
+- `has(name)`
+- `flag(name, default_value)`
+- `get<T>(name, default_value)`
+- `required<T>(name)`
+- `require_no_unknown({names...})`
+
+Example:
+
+```cpp
+cp_stress_gen::core::Options opt(argc, argv);
+int n = opt.get<int>("n", 1000);
+long long seed = opt.get<long long>("seed", 1);
+bool hard = opt.flag("hard");
+```
+
+Validation: duplicate options, missing required values, invalid conversions, and
+strict unknown-option checks throw.
+
+Limitations: this is a small parser for generator scripts, not a full CLI framework.
+It supports `--name value`, `--name=value`, `--flag`, `-h`, and `--help`.
+
 ### `core::Printer`
 
 Purpose: print generated data to an `std::ostream`.

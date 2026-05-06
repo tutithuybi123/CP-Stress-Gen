@@ -47,6 +47,21 @@ auto edges = cp_stress_gen::Graph(8)
 
 Invalid configurations should throw before producing output.
 
+## Command-Line Options
+
+`core::Options` is intentionally small and predictable. It exists for standalone
+generator scripts that need values such as `--n`, `--seed`, or `--mode`.
+
+Supported forms are limited to:
+
+- `--name value`
+- `--name=value`
+- `--flag`
+- `-h` and `--help`
+
+Unknown options are allowed by default so examples can be embedded into larger local
+workflows. Call `require_no_unknown(...)` when a script needs strict validation.
+
 ## Composable Builders
 
 Preset generators cover common shapes. Builder APIs such as `TreeBuilder` and

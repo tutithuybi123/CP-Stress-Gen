@@ -102,6 +102,7 @@ Advanced and structure examples:
 - `examples/math_helpers.cpp`
 - `examples/geometry_shapes.cpp`
 - `examples/anti_patterns.cpp`
+- `examples/options_basic.cpp`
 - `examples/printer_modifiers.cpp`
 - `examples/algorithm_killers.cpp`
 - `examples/string_deep_patterns.cpp`
@@ -117,7 +118,7 @@ commands and usage notes.
 
 | Area | Capabilities |
 | --- | --- |
-| Core | Random, validation, printer modifiers, vector/matrix/grid/edge output |
+| Core | Random, validation, options, printer modifiers, vector/matrix/grid/edge output |
 | Arrays | Range, fill, iota, shuffle, almost sorted, many equal, blocky |
 | Strings | Alphabets, palindrome, periodic, Thue-Morse, Fibonacci, de Bruijn, hashes |
 | Permutations | One/zero-based labels, shuffle, reversed, cyclic shifts, few swaps, blocks |
