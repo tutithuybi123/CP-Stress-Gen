@@ -4,7 +4,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
 
-`CP-Stress-Gen` is a lightweight, header-only C++17 library for competitive programming test generation. It provides fluent preset generators, composable tree/graph builders, deterministic seeded output, validation helpers, ergonomic printers, and practical examples for local stress testing.
+`CP-Stress-Gen` is a lightweight, header-only C++17 library for competitive programming
+test generation. It provides fluent preset generators, composable tree/graph builders,
+deterministic seeded output, validation helpers, ergonomic printers, and practical
+examples for local stress testing.
 
 ## Documentation
 
@@ -79,7 +82,9 @@ Phase 3 structures:
 - `examples/printer_modifiers.cpp`
 - `examples/algorithm_killers.cpp`
 
-Existing focused examples remain available in `examples/`. See [English examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile commands and usage notes.
+Existing focused examples remain available in `examples/`. See [English
+examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile
+commands and usage notes.
 
 ## Current Modules
 
@@ -101,11 +106,15 @@ Existing focused examples remain available in `examples/`. See [English examples
 - No GUI or `TestSuite-Studio` bridge yet.
 - No guaranteed convex polygon generator yet.
 - Large-range prime generation is intentionally simple.
-- Advanced adversarial generators such as true hash collision construction remain deferred; algorithm-targeted patterns are stress candidates, not guaranteed breakers.
+- Advanced adversarial generators such as true hash collision construction remain deferred;
+  algorithm-targeted patterns are stress candidates, not guaranteed breakers.
 
 ## Comparison Notes
 
-`jngen` remains an older and rich generator library with many established ideas. `CP-Stress-Gen` takes a smaller C++17-focused direction: explicit RNG objects, direct `g++` checks, CI, bilingual documentation, composable builders, and examples built around local stress-test workflows.
+`jngen` remains an older and rich generator library with many established ideas.
+`CP-Stress-Gen` takes a smaller C++17-focused direction: explicit RNG objects, direct
+`g++` checks, CI, bilingual documentation, composable builders, and examples built
+around local stress-test workflows.
 
 ## Development Checks
 
@@ -122,7 +131,9 @@ Run the full local check from PowerShell:
 .\scripts\check_all.ps1
 ```
 
-The full check compiles all tests, runs all test executables, and compiles all examples using direct `g++` commands. GitHub Actions CI uses the same direct `g++` approach and does not use CMake.
+The full check compiles all tests, runs all test executables, and compiles all examples
+using direct `g++` commands. GitHub Actions CI uses the same direct `g++` approach and
+does not use CMake.
 
 ## License
 

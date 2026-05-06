@@ -1,8 +1,12 @@
 # CP-Stress-Gen API Reference
 
-This page summarizes the public C++17 API exposed by `include/cp_stress_gen.hpp`. The library is header-only and uses `std::invalid_argument` for invalid generator configurations.
+This page summarizes the public C++17 API exposed by `include/cp_stress_gen.hpp`. The
+library is header-only and uses `std::invalid_argument` for invalid generator
+configurations.
 
-The API includes both preset generators for common shapes and composable builders for custom tree/graph structures. Algorithm-targeted anti-pattern helpers are documented as stress candidates, not guaranteed exploit generators.
+The API includes both preset generators for common shapes and composable builders for
+custom tree/graph structures. Algorithm-targeted anti-pattern helpers are documented as
+stress candidates, not guaranteed exploit generators.
 
 ## Core
 
@@ -76,7 +80,9 @@ out.indexed(1).edges(edges);
 
 Validation: no runtime validation beyond stream behavior.
 
-Limitations: `edges()` expects edge objects with `u`, `v`, `w`, and `weighted` fields. `testcases()` intentionally supports one simple callable form: `callable(case_index, printer)`.
+Limitations: `edges()` expects edge objects with `u`, `v`, `w`, and `weighted` fields.
+`testcases()` intentionally supports one simple callable form: `callable(case_index,
+printer)`.
 
 ## Modules
 
@@ -100,7 +106,8 @@ Example:
 auto a = cp_stress_gen::Array(10).range(1, 100).build(rng);
 ```
 
-Validation: invalid ranges, zero distinct counts, zero block sizes, and excessive swap counts throw.
+Validation: invalid ranges, zero distinct counts, zero block sizes, and excessive swap
+counts throw.
 
 Limitations: values are `long long`; `almost_sorted` starts from `1..n`.
 
@@ -131,9 +138,11 @@ auto s = cp_stress_gen::String(12).periodic("abc").build(rng);
 auto h = cp_stress_gen::StringHash::hash_string(s, 911382323, 1000000007);
 ```
 
-Validation: empty alphabets, invalid ranges, empty periodic/noise patterns, excessive mutation counts, invalid run/block sizes, and invalid hash parameters throw.
+Validation: empty alphabets, invalid ranges, empty periodic/noise patterns, excessive
+mutation counts, invalid run/block sizes, and invalid hash parameters throw.
 
-Limitations: string generation is byte-oriented and does not handle Unicode grapheme logic. Hash helpers do not generate true collisions.
+Limitations: string generation is byte-oriented and does not handle Unicode grapheme
+logic. Hash helpers do not generate true collisions.
 
 ### `Permutation`
 
@@ -185,9 +194,12 @@ auto composed = cp_stress_gen::TreeBuilder::bamboo(5)
     .build();
 ```
 
-Validation: invalid labels, centers, spine sizes, branch counts, degree limits, non-random degree-limit use, duplicate builder edges, disconnected explicit trees, invalid attach nodes, and weight ranges throw.
+Validation: invalid labels, centers, spine sizes, branch counts, degree limits,
+non-random degree-limit use, duplicate builder edges, disconnected explicit trees,
+invalid attach nodes, and weight ranges throw.
 
-Limitations: degree limits currently apply only to `random()` trees; `TreeBuilder` bridge edges are unweighted while existing component edge weights are preserved.
+Limitations: degree limits currently apply only to `random()` trees; `TreeBuilder`
+bridge edges are unweighted while existing component edge weights are preserved.
 
 ### `Graph`
 
@@ -220,9 +232,13 @@ auto custom = cp_stress_gen::GraphBuilder(5)
     .build();
 ```
 
-Validation: impossible edge counts, invalid partitions, invalid layer counts, invalid structure sizes, invalid builder labels, duplicate builder edges, self-loops, and incompatible directed modes throw.
+Validation: impossible edge counts, invalid partitions, invalid layer counts, invalid
+structure sizes, invalid builder labels, duplicate builder edges, self-loops, and
+incompatible directed modes throw.
 
-Limitations: advanced graph families and weighted shortest-path adversarial cases are intentionally deferred. `GraphBuilder::complement()` supports simple unweighted graphs only.
+Limitations: advanced graph families and weighted shortest-path adversarial cases are
+intentionally deferred. `GraphBuilder::complement()` supports simple unweighted graphs
+only.
 
 ### `Math`
 
@@ -248,9 +264,11 @@ Example:
 auto pair = cp_stress_gen::Math::with_gcd(6, 1, 20, rng);
 ```
 
-Validation: invalid ranges, impossible prime/composite/coprime requests, invalid modular parameters, and missing modular inverses throw.
+Validation: invalid ranges, impossible prime/composite/coprime requests, invalid modular
+parameters, and missing modular inverses throw.
 
-Limitations: primality and factor-related helpers use simple algorithms and do not target huge ranges.
+Limitations: primality and factor-related helpers use simple algorithms and do not
+target huge ranges.
 
 ### `Geometry`
 
@@ -275,9 +293,12 @@ Example:
 auto points = cp_stress_gen::Geometry::points(9).rectangle(1, 1, 3, 3).unique().build(rng);
 ```
 
-Validation: invalid rectangles, impossible unique requests, invalid collinear steps, negative cluster radii, degenerate simple polygons, too-small polygons, and invalid regular polygon radii throw.
+Validation: invalid rectangles, impossible unique requests, invalid collinear steps,
+negative cluster radii, degenerate simple polygons, too-small polygons, and invalid
+regular polygon radii throw.
 
-Limitations: arbitrary integer convex polygon generation is not implemented. `convex_polygon_candidate()` returns a regular/on-circle candidate.
+Limitations: arbitrary integer convex polygon generation is not implemented.
+`convex_polygon_candidate()` returns a regular/on-circle candidate.
 
 ## Anti Pattern Modules
 
@@ -291,11 +312,13 @@ Common API:
 - `anti::GraphKiller::dense`, `long_dag_chain`, `sparse_connected`, `dense_dag`
 - `anti::StringKiller::repeated`, `alternating`, `prefix_heavy`, `kmp_prefix_pattern`
 - `anti::DfsBfsKiller::deep_chain`, `many_components`, `huge_branching`, `broom_tree`, `grid_maze_like`
-- `anti::DijkstraKiller::many_equal_distances`, `zero_weight_edges`, `dense_weighted_trap`, `layered_equal_shortest_paths`
+- `anti::DijkstraKiller::many_equal_distances`, `zero_weight_edges`,
+  `dense_weighted_trap`, `layered_equal_shortest_paths`
 - `anti::DsuKiller::redundant_edges`, `delayed_connectivity`, `reverse_union_sequence`, `many_queries_same_component`
 - `anti::DpKiller::all_equal_array`, `monotonic_array`, `alternating_array`, `boundary_sizes`, `knapsack_tight_capacity`
 - `anti::GreedyKiller::local_optimum_trap_array`, `interval_scheduling_trap`, `coin_change_greedy_trap`
-- `anti::BinarySearchKiller::off_by_one_boundaries`, `lower_upper_bound_duplicates`, `all_false_then_true`, `all_true_then_false`
+- `anti::BinarySearchKiller::off_by_one_boundaries`, `lower_upper_bound_duplicates`,
+  `all_false_then_true`, `all_true_then_false`
 - `anti::StringPatternKiller::kmp_worst_prefix`, `z_repeated_blocks`, `border_heavy`, `periodic_with_break`
 - `anti::HashKiller::repeated_base_sensitive_shapes`, `collision_like_patterns`
 
@@ -308,4 +331,6 @@ auto chain = cp_stress_gen::anti::DfsBfsKiller::deep_chain(100000);
 
 Validation: invalid sizes or counts throw where applicable.
 
-Limitations: these names describe input shapes. They do not guarantee that a specific algorithm will fail. Hash utilities provide collision-like patterns only; no true hash collision generator is implemented.
+Limitations: these names describe input shapes. They do not guarantee that a specific
+algorithm will fail. Hash utilities provide collision-like patterns only; no true hash
+collision generator is implemented.

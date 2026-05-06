@@ -8,7 +8,8 @@ All notable changes to `CP-Stress-Gen` will be documented in this file.
 
 - Printer modifiers for indexed output, separators, matrices, grids, testcase blocks, and edge headers.
 - Composable `TreeBuilder` and `GraphBuilder` APIs for custom structures.
-- Algorithm-targeted stress candidate patterns for DFS/BFS, Dijkstra, DSU, DP, greedy, binary search, string/hash, and sort workflows.
+- Algorithm-targeted stress candidate patterns for DFS/BFS, Dijkstra, DSU, DP,
+  greedy, binary search, string/hash, and sort workflows.
 - String pattern helpers and rolling hash utilities.
 - Geometry orientation, area, convexity, and regular polygon candidate helpers.
 

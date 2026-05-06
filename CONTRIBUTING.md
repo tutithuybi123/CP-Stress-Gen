@@ -1,6 +1,7 @@
 # Contributing
 
-Thanks for helping improve `CP-Stress-Gen`. Keep changes small, testable, and compatible with the existing header-only C++17 design.
+Thanks for helping improve `CP-Stress-Gen`. Keep changes small, testable, and compatible
+with the existing header-only C++17 design.
 
 ## Local Setup
 
@@ -47,7 +48,8 @@ Tests should print visible `[PASS]` output.
 
 ## Documentation
 
-Update docs when behavior, setup, examples, or public APIs change. Keep English and Vietnamese documentation consistent where both apply.
+Update docs when behavior, setup, examples, or public APIs change. Keep English and
+Vietnamese documentation consistent where both apply.
 
 ## Pull Requests And Issues
 

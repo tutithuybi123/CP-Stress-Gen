@@ -54,6 +54,16 @@
 | Done | String/hash utilities | Add string pattern helpers and rolling hash utilities. | Hash helpers and string invariants are tested. |
 | Done | Geometry helpers | Add safe polygon measurements and regular polygon candidates. | Orientation, area, convexity, and invalid inputs are tested. |
 
+## Phase 6: Gap Closing
+
+| Status | Task | Objective | Acceptance Criteria |
+| --- | --- | --- | --- |
+| Planned | Markdown reformat | Keep docs readable in raw form and diffs. | Core docs are wrapped without losing meaning. |
+| Planned | Single-header bundle | Let users copy one generated header. | `dist/cp_stress_gen.hpp` compiles with `-Idist`. |
+| Planned | Deeper string/hash helpers | Add stronger pattern and hash utilities. | New helpers are tested and documented honestly. |
+| Planned | Deeper geometry helpers | Add segment, hull, and point utilities. | Geometry invariants and invalid inputs are tested. |
+| Planned | Deeper math helpers | Add number theory, modular, and combinatorics helpers. | Math helpers have known-value tests. |
+
 ## Release Checklist
 
 - `scripts/check_all.ps1` passes locally.

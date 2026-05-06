@@ -11,7 +11,8 @@
 
 ## Namespace
 
-All APIs use `cp_stress_gen`. Core helpers use `cp_stress_gen::core`. Safe adversarial pattern helpers use `cp_stress_gen::anti`.
+All APIs use `cp_stress_gen`. Core helpers use `cp_stress_gen::core`. Safe adversarial
+pattern helpers use `cp_stress_gen::anti`.
 
 ## Random Model
 
@@ -22,7 +23,9 @@ cp_stress_gen::core::Random rng(42);
 auto values = cp_stress_gen::Array(10).range(1, 100).build(rng);
 ```
 
-This keeps seeded behavior deterministic and avoids competing per-generator RNG state. Convenience `build()` overloads may use time-based randomness for quick examples, but tests and reproducible workflows should pass `Random&` explicitly.
+This keeps seeded behavior deterministic and avoids competing per-generator RNG state.
+Convenience `build()` overloads may use time-based randomness for quick examples, but
+tests and reproducible workflows should pass `Random&` explicitly.
 
 ## Fluent API
 
@@ -41,7 +44,10 @@ Invalid configurations should throw before producing output.
 
 ## Composable Builders
 
-Preset generators cover common shapes. Builder APIs such as `TreeBuilder` and `GraphBuilder` cover custom structures by composing paths, stars, cliques, components, and explicit edge lists. Public builder inputs use the builder's current label space, and merge or attach operations relabel internally when needed to avoid collisions.
+Preset generators cover common shapes. Builder APIs such as `TreeBuilder` and
+`GraphBuilder` cover custom structures by composing paths, stars, cliques, components,
+and explicit edge lists. Public builder inputs use the builder's current label space,
+and merge or attach operations relabel internally when needed to avoid collisions.
 
 ## Edge Convention
 
@@ -54,7 +60,8 @@ long long w;
 bool weighted;
 ```
 
-`weighted == false` means printers emit `u v`; `weighted == true` means printers emit `u v w`.
+`weighted == false` means printers emit `u v`; `weighted == true` means printers emit `u
+v w`.
 
 ## Validation Policy
 
@@ -70,7 +77,10 @@ Prefer throwing `std::invalid_argument` over silently changing user intent.
 
 ## Algorithm-Targeted Patterns
 
-Anti-pattern helpers describe candidate stress shapes for algorithm testing. They should not claim to break an algorithm unless the implementation includes a specific proof or test for that claim. Hash helpers currently provide collision-like shapes, not true hash collision construction.
+Anti-pattern helpers describe candidate stress shapes for algorithm testing. They should
+not claim to break an algorithm unless the implementation includes a specific proof or
+test for that claim. Hash helpers currently provide collision-like shapes, not true hash
+collision construction.
 
 ## C++17 Compatibility
 
