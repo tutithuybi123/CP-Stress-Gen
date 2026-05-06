@@ -84,9 +84,35 @@ int main() {
     }
     assert(seen_binary.size() == 8);
 
+    assert(cp_stress_gen::String::thue_morse(8) == "abbabaab");
+    const auto tm_pair = cp_stress_gen::String::thue_morse_pair(3);
+    assert(tm_pair.first == "abbabaab");
+    assert(tm_pair.second == "baababba");
+    assert(cp_stress_gen::String::fibonacci_word(8) == "abaababa");
+
+    const auto db_general = cp_stress_gen::String::de_bruijn("abc", 2);
+    assert(db_general.size() == 10);
+    std::set<std::string> seen_general;
+    for (std::size_t i = 0; i + 2 <= db_general.size(); ++i) {
+        seen_general.insert(db_general.substr(i, 2));
+    }
+    assert(seen_general.size() == 9);
+
+    assert(cp_stress_gen::String::border_chain(5) == "aaaaa");
+    assert(cp_stress_gen::String::periodic_blocks("ab", 3) == "ababab");
+    assert(cp_stress_gen::String::runs(std::vector<std::pair<char, std::size_t>>{{'x', 2}, {'y', 3}}) == "xxyyy");
+    assert(cp_stress_gen::String::kmp_worst_prefix(5) == "aaaab");
+    assert(cp_stress_gen::String::anti_z(4) == "aaaa");
+
     assert(cp_stress_gen::StringHash::hash_string("ab", 31, 1000) == 105);
     assert(cp_stress_gen::StringHash::same_hash("abc", "abc", 911382323, 1000000007));
     assert(!cp_stress_gen::StringHash::same_hash("abc", "abd", 31, 1000000007));
+    assert(cp_stress_gen::StringHash::hash_u64("ab", 31) == 3105ull);
+    assert(cp_stress_gen::StringHash::same_hash_u64("abc", "abc", 31));
+    assert(!cp_stress_gen::StringHash::same_hash_u64("abc", "abd", 31));
+    const auto power2_pair = cp_stress_gen::StringHash::thue_morse_pair_power2(10);
+    assert(power2_pair.first != power2_pair.second);
+    assert(cp_stress_gen::StringHash::same_hash_u64(power2_pair.first, power2_pair.second, 911382323ull));
     const auto collision_like = cp_stress_gen::StringHash::collision_like_pair(4);
     assert(collision_like.first == "aaab");
     assert(collision_like.second == "baaa");
@@ -170,6 +196,22 @@ int main() {
 
     thrown = false;
     try {
+        (void)cp_stress_gen::String::de_bruijn("aa", 2);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::String::periodic_blocks("", 2);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
         (void)cp_stress_gen::StringHash::hash_string("a", 31, 1);
     } catch (const std::invalid_argument&) {
         thrown = true;
@@ -179,6 +221,14 @@ int main() {
     thrown = false;
     try {
         (void)cp_stress_gen::StringHash::collision_like_pair(0);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::StringHash::thue_morse_pair_power2(9);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

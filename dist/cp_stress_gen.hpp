@@ -3673,6 +3673,106 @@ public:
         return sequence;
     }
 
+    [[nodiscard]] static std::string thue_morse(
+        const size_type n,
+        const char a = 'a',
+        const char b = 'b'
+    ) {
+        std::string result;
+        result.reserve(n);
+        for (size_type i = 0; i < n; ++i) {
+            result.push_back(popcount(i) % 2 == 0 ? a : b);
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::pair<std::string, std::string> thue_morse_pair(
+        const size_type k,
+        const char a = 'a',
+        const char b = 'b'
+    ) {
+        core::require(k <= 20, "String::thue_morse_pair k is too large for this helper");
+        const size_type n = size_type{1} << k;
+        std::string first = thue_morse(n, a, b);
+        std::string second = thue_morse(n, b, a);
+        return std::make_pair(first, second);
+    }
+
+    [[nodiscard]] static std::string fibonacci_word(
+        const size_type n,
+        const char a = 'a',
+        const char b = 'b'
+    ) {
+        if (n == 0) {
+            return {};
+        }
+        std::string previous(1, b);
+        std::string current(1, a);
+        while (current.size() < n) {
+            std::string next = current + previous;
+            previous = current;
+            current = next;
+        }
+        current.resize(n);
+        return current;
+    }
+
+    [[nodiscard]] static std::string de_bruijn(const std::string& alphabet, const size_type k) {
+        core::require(!alphabet.empty(), "String::de_bruijn alphabet must not be empty");
+        core::require_positive(k, "String::de_bruijn k must be positive");
+        core::require(alphabet.size() <= 8, "String::de_bruijn alphabet is too large for this helper");
+
+        std::set<char> unique(alphabet.begin(), alphabet.end());
+        core::require(unique.size() == alphabet.size(), "String::de_bruijn alphabet characters must be unique");
+
+        size_type sequence_length = 1;
+        for (size_type i = 0; i < k; ++i) {
+            core::require(sequence_length <= 1000000 / alphabet.size(), "String::de_bruijn output would be too large");
+            sequence_length *= alphabet.size();
+        }
+
+        std::vector<int> a(alphabet.size() * k + 1, 0);
+        std::string sequence;
+        de_bruijn_dfs_general(1, 1, k, alphabet, a, sequence);
+        sequence.append(k - 1, alphabet.front());
+        return sequence;
+    }
+
+    [[nodiscard]] static std::string border_chain(const size_type n, const char ch = 'a') {
+        return std::string(n, ch);
+    }
+
+    [[nodiscard]] static std::string periodic_blocks(const std::string& pattern, const size_type blocks) {
+        core::require(!pattern.empty(), "String::periodic_blocks pattern must not be empty");
+        std::string result;
+        result.reserve(pattern.size() * blocks);
+        for (size_type i = 0; i < blocks; ++i) {
+            result += pattern;
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::string runs(const std::vector<std::pair<char, size_type>>& lengths) {
+        std::string result;
+        for (const auto& part : lengths) {
+            result.append(part.second, part.first);
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::string kmp_worst_prefix(const size_type n, const char repeated = 'a', const char breaker = 'b') {
+        if (n == 0) {
+            return {};
+        }
+        std::string result(n, repeated);
+        result[n - 1] = breaker;
+        return result;
+    }
+
+    [[nodiscard]] static std::string anti_z(const size_type n, const char ch = 'a') {
+        return std::string(n, ch);
+    }
+
     [[nodiscard]] std::string build(core::Random& rng) const {
         core::require(!alphabet_.empty(), "String generator alphabet must not be empty");
         if (mode_ == Mode::Palindrome || mode_ == Mode::AlmostPalindrome) {
@@ -3844,6 +3944,40 @@ private:
             de_bruijn_dfs(t + 1, t, k, a, sequence);
         }
     }
+
+    [[nodiscard]] static int popcount(size_type value) noexcept {
+        int result = 0;
+        while (value > 0) {
+            result += static_cast<int>(value & 1u);
+            value >>= 1u;
+        }
+        return result;
+    }
+
+    static void de_bruijn_dfs_general(
+        const size_type t,
+        const size_type p,
+        const size_type k,
+        const std::string& alphabet,
+        std::vector<int>& a,
+        std::string& sequence
+    ) {
+        if (t > k) {
+            if (k % p == 0) {
+                for (size_type i = 1; i <= p; ++i) {
+                    sequence.push_back(alphabet[static_cast<size_type>(a[i])]);
+                }
+            }
+            return;
+        }
+
+        a[t] = a[t - p];
+        de_bruijn_dfs_general(t + 1, p, k, alphabet, a, sequence);
+        for (int value = a[t - p] + 1; value < static_cast<int>(alphabet.size()); ++value) {
+            a[t] = value;
+            de_bruijn_dfs_general(t + 1, t, k, alphabet, a, sequence);
+        }
+    }
 };
 
 class StringHash {
@@ -3876,6 +4010,31 @@ public:
         first[n - 1] = 'b';
         second[0] = 'b';
         return std::make_pair(first, second);
+    }
+
+    [[nodiscard]] static unsigned long long hash_u64(const std::string& value, const unsigned long long base) noexcept {
+        unsigned long long result = 0;
+        for (const unsigned char ch : value) {
+            result = result * base + static_cast<unsigned long long>(ch);
+        }
+        return result;
+    }
+
+    [[nodiscard]] static bool same_hash_u64(
+        const std::string& left,
+        const std::string& right,
+        const unsigned long long base
+    ) noexcept {
+        return hash_u64(left, base) == hash_u64(right, base);
+    }
+
+    [[nodiscard]] static std::pair<std::string, std::string> thue_morse_pair_power2(
+        const std::size_t k,
+        const char a = 'a',
+        const char b = 'b'
+    ) {
+        core::require(k >= 10, "StringHash::thue_morse_pair_power2 requires k >= 10 for 64-bit overflow hashes");
+        return String::thue_morse_pair(k, a, b);
     }
 
 private:

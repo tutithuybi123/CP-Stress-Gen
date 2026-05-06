@@ -129,20 +129,25 @@ Common API:
 - `periodic_with_noise(pattern, changes)`
 - `random_palindromic_blocks(block_size)`
 - `String::de_bruijn_binary(k)`
+- `String::thue_morse`, `thue_morse_pair`, `fibonacci_word`, `de_bruijn`
+- `String::border_chain`, `periodic_blocks`, `runs`, `kmp_worst_prefix`, `anti_z`
 - `StringHash::hash_string`, `same_hash`, `collision_like_pair`
+- `StringHash::hash_u64`, `same_hash_u64`, `thue_morse_pair_power2`
 
 Example:
 
 ```cpp
 auto s = cp_stress_gen::String(12).periodic("abc").build(rng);
 auto h = cp_stress_gen::StringHash::hash_string(s, 911382323, 1000000007);
+auto pair = cp_stress_gen::StringHash::thue_morse_pair_power2(10);
 ```
 
 Validation: empty alphabets, invalid ranges, empty periodic/noise patterns, excessive
 mutation counts, invalid run/block sizes, and invalid hash parameters throw.
 
 Limitations: string generation is byte-oriented and does not handle Unicode grapheme
-logic. Hash helpers do not generate true collisions.
+logic. `thue_morse_pair_power2()` is scoped to unsigned 64-bit overflow polynomial
+hashes with odd bases; it is not a universal hash collision generator.
 
 ### `Permutation`
 

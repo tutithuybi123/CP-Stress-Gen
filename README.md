@@ -100,6 +100,8 @@ Phase 3 structures:
 - `examples/anti_patterns.cpp`
 - `examples/printer_modifiers.cpp`
 - `examples/algorithm_killers.cpp`
+- `examples/string_deep_patterns.cpp`
+- `examples/hash_patterns.cpp`
 
 Existing focused examples remain available in `examples/`. See [English
 examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile
@@ -111,7 +113,7 @@ commands and usage notes.
 | --- | --- |
 | Core | Xoshiro256**, validation helpers, printer modifiers, matrix/grid/vector/edge printing |
 | Arrays | Ranges, fill, iota, shuffle, almost sorted, many equal, blocky |
-| Strings | Alphabets, ranges, palindrome, periodic, border-heavy, runs, hash utilities |
+| Strings | Alphabets, ranges, palindrome, periodic, Thue-Morse, Fibonacci word, de Bruijn, hash utilities |
 | Permutations | One-based/zero-based, shuffle, reversed, cyclic shift, few swaps, blocks |
 | Trees | Bamboo, star, random, binary, caterpillar, deep recursion, weighted edges, composable builders |
 | Graphs | General, DAG, layered DAG, dense, sparse connected, complete, cycle, path, forest, components, bipartite, composable builders |
