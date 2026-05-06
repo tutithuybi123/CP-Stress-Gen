@@ -124,24 +124,32 @@
 
 ## v0.3.0: Usability and Integration
 
-- Options parser:
-  add a small C++17 command-line helper for generator scripts.
+- Done - Options parser:
+  implemented a small C++17 command-line helper for generator scripts.
   Acceptance: options tests cover values, flags, defaults, required values, and errors.
-- Contest workflow examples:
-  add portable Polygon-style, Themis-style, local stress, and batch file examples.
+- Done - Contest workflow examples:
+  implemented portable Polygon-style, Themis-style, local stress, and batch file examples.
   Acceptance: all examples compile without external programs or platform SDKs.
-- Package-free install docs:
-  improve `include/`, `dist/`, vendoring, and troubleshooting guidance.
+- Done - Package-free install docs:
+  improved `include/`, `dist/`, vendoring, and troubleshooting guidance.
   Acceptance: English and Vietnamese installation docs cover copy-only workflows.
-- Benchmark examples:
-  show simple generator timing patterns without performance overclaims.
+- Done - Benchmark examples:
+  implemented simple generator timing patterns without performance overclaims.
   Acceptance: benchmark examples compile through direct `g++` checks.
-- Cookbook docs:
-  add task-oriented English and Vietnamese recipes for common generators.
+- Done - Cookbook docs:
+  implemented task-oriented English and Vietnamese recipes for common generators.
   Acceptance: README links the cookbook and recipes reference existing APIs.
-- Release notes:
-  prepare `CHANGELOG.md` for `v0.3.0` without creating the tag.
+- Done - Release notes:
+  prepared `CHANGELOG.md` for `v0.3.0` without creating the tag.
   Acceptance: v0.3.0 notes describe implemented work before tagging.
+
+## v0.4.0 Candidates
+
+- True hash collision research with clearly documented assumptions.
+- Stronger geometry generation, especially safer polygon families.
+- Optional CMake or package manager integration.
+- `TestSuite-Studio` bridge after the CLI library remains stable.
+- More graph families and contest-specific generator presets.
 
 ## Release Checklist
 

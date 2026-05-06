@@ -6,18 +6,24 @@ All notable changes to `CP-Stress-Gen` will be documented in this file.
 
 ### Added
 
-- Planned command-line options helper for generator scripts.
-- Planned portable Polygon, Themis, and local stress-test workflow examples.
-- Planned benchmark examples and practical cookbook documentation.
+- `core::Options`, a small command-line options helper for generator scripts.
+- Portable Polygon-style, Themis-style, local stress-driver, and batch file-output
+  examples.
+- Simple array, graph, and string benchmark examples using `std::chrono`.
+- English and Vietnamese integration, benchmark, and cookbook documentation.
 
 ### Changed
 
-- Planned package-free installation and single-header usage documentation updates.
+- Expanded package-free installation documentation for `include/`, `dist/`, vendoring,
+  bundle regeneration, compile verification, and PowerShell troubleshooting.
+- README links now point to integration, benchmark, and cookbook guides.
 
 ### Notes
 
-- No CMake, external dependencies, or `v0.3.0` tag are planned in this development
-  batch.
+- Polygon and Themis examples are portable generator workflows only; they do not require
+  external SDKs or platform executables.
+- No CMake, external dependencies, `v0.3.0` tag, or GitHub Release is included in this
+  development batch.
 
 ## [0.2.0] - 2026-05-06
 
