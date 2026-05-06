@@ -161,17 +161,24 @@ Common API:
 - `bamboo()`, `star()`, `star(center)`, `random()`
 - `degree_limit(limit)` for random trees
 - `binary()`, `caterpillar(spine)`, `deep_recursion(branches)`
+- `broom(chain_len, leaves)`, `double_star(left_leaves, right_leaves)`, `k_ary(k)`
 - `shuffle()`
+- `Tree::from_edges(n, edges, first)`
+- `TreeBuilder::bamboo(n)`, `star(n)`, `broom(chain_len, leaves)`, `double_star(left, right)`, `k_ary(n, k)`
+- `TreeBuilder::attach(...)`, `merge(...)`, `renumber(...)`, `shuffle_vertices(rng)`, `shuffle_edges(rng)`, `build()`
 
 Example:
 
 ```cpp
 auto edges = cp_stress_gen::Tree(10).weighted(1, 100).random().build(rng);
+auto composed = cp_stress_gen::TreeBuilder::bamboo(5)
+    .attach(cp_stress_gen::TreeBuilder::star(3), 5, 1)
+    .build();
 ```
 
-Validation: invalid labels, centers, spine sizes, branch counts, degree limits, non-random degree-limit use, and weight ranges throw.
+Validation: invalid labels, centers, spine sizes, branch counts, degree limits, non-random degree-limit use, duplicate builder edges, disconnected explicit trees, invalid attach nodes, and weight ranges throw.
 
-Limitations: degree limits currently apply only to `random()` trees; arbitrary tree families are not guaranteed.
+Limitations: degree limits currently apply only to `random()` trees; `TreeBuilder` bridge edges are unweighted while existing component edge weights are preserved.
 
 ### `Graph`
 

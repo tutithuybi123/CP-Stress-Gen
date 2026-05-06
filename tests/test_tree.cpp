@@ -91,6 +91,9 @@ int main() {
     assert_tree(cp_stress_gen::Tree(10).binary().build(rng), 10, 1);
     assert_tree(cp_stress_gen::Tree(10).caterpillar(4).build(rng), 10, 1);
     assert_tree(cp_stress_gen::Tree(10).deep_recursion(3).build(rng), 10, 1);
+    assert_tree(cp_stress_gen::Tree(7).broom(4, 3).build(rng), 7, 1);
+    assert_tree(cp_stress_gen::Tree(7).double_star(2, 3).build(rng), 7, 1);
+    assert_tree(cp_stress_gen::Tree(10).k_ary(3).build(rng), 10, 1);
 
     const auto weighted = cp_stress_gen::Tree(12).zero_based().weighted(5, 8).random().shuffle().build(rng);
     assert_tree(weighted, 12, 0);
@@ -113,6 +116,32 @@ int main() {
         cp_stress_gen::Tree(15).weighted(2, 9).random().shuffle().build(same_a),
         cp_stress_gen::Tree(15).weighted(2, 9).random().shuffle().build(same_b)
     ));
+
+    auto merged = cp_stress_gen::TreeBuilder::bamboo(3);
+    merged.merge(cp_stress_gen::TreeBuilder::bamboo(2), 3, 1);
+    assert_tree(merged.build(), 5, 1);
+
+    auto attached = cp_stress_gen::TreeBuilder::bamboo(4);
+    attached.attach(cp_stress_gen::TreeBuilder::star(4), 4, 1);
+    assert_tree(attached.build(), 8, 1);
+
+    auto shuffled_builder = cp_stress_gen::TreeBuilder::broom(5, 4);
+    shuffled_builder.shuffle_vertices(rng).shuffle_edges(rng);
+    assert_tree(shuffled_builder.build(), 9, 1);
+
+    assert_tree(cp_stress_gen::TreeBuilder::double_star(3, 2).build(), 7, 1);
+    assert_tree(cp_stress_gen::TreeBuilder::k_ary(11, 3).zero_based().build(), 11, 0);
+
+    const auto explicit_tree = cp_stress_gen::Tree::from_edges(4, std::vector<cp_stress_gen::Tree::Edge>{
+        cp_stress_gen::Tree::Edge{1, 2, 1, false},
+        cp_stress_gen::Tree::Edge{2, 3, 7, true},
+        cp_stress_gen::Tree::Edge{2, 4, 1, false}
+    }).build();
+    assert_tree(explicit_tree, 4, 1);
+    assert(explicit_tree[1].weighted);
+
+    auto renumbered = cp_stress_gen::TreeBuilder::bamboo(4).zero_based().build();
+    assert_tree(renumbered, 4, 0);
 
     bool thrown = false;
     try {
@@ -189,6 +218,50 @@ int main() {
     thrown = false;
     try {
         (void)cp_stress_gen::Tree(4).deep_recursion(5).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(3).broom(0, 3).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(5).double_star(1, 1).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree(5).k_ary(0).build(rng);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        auto bad_attach = cp_stress_gen::TreeBuilder::bamboo(3);
+        bad_attach.attach(cp_stress_gen::TreeBuilder::star(3), 9, 1);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Tree::from_edges(3, std::vector<cp_stress_gen::Tree::Edge>{
+            cp_stress_gen::Tree::Edge{1, 2, 1, false},
+            cp_stress_gen::Tree::Edge{1, 2, 1, false}
+        });
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

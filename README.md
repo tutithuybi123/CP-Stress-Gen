@@ -70,6 +70,7 @@ Hard:
 Phase 3 structures:
 
 - `examples/tree_degree_limit.cpp`
+- `examples/tree_composition.cpp`
 - `examples/graph_structures.cpp`
 - `examples/math_helpers.cpp`
 - `examples/geometry_shapes.cpp`
@@ -86,7 +87,7 @@ Existing focused examples remain available in `examples/`. See [English examples
 | Arrays | Ranges, fill, iota, shuffle, almost sorted, many equal, blocky |
 | Strings | Alphabets, ranges, palindrome, almost palindrome, periodic, prefix-heavy |
 | Permutations | One-based/zero-based, shuffle, reversed, cyclic shift, few swaps, blocks |
-| Trees | Bamboo, star, random, binary, caterpillar, deep recursion, weighted edges |
+| Trees | Bamboo, star, random, binary, caterpillar, deep recursion, weighted edges, composable builders |
 | Graphs | General, DAG, layered DAG, dense, sparse connected, complete, cycle, path, forest, components, bipartite |
 | Math | gcd, lcm, divisors, primes, primality, random prime/composite, coprime pairs |
 | Geometry | Integer points, unique grid points, collinear, boundary, clustered, duplicates |
