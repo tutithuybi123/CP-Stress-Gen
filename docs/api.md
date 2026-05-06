@@ -55,19 +55,26 @@ Common API:
 
 - `line(args...)`
 - `space(args...)`
+- `indexed(shift)`
+- `separator(value)`
 - `vector(container)`
+- `matrix(rows)`, `grid(rows)`
 - `edges(container)`
+- `edges(n, edges)`, `edges(n, m, edges)`
+- `with_n(container)`, `with_n_m(n, m, edges)`
+- `testcases(count, callable)`
 
 Example:
 
 ```cpp
 cp_stress_gen::core::Printer out(std::cout);
 out.vector(std::vector<int>{1, 2, 3});
+out.indexed(1).edges(edges);
 ```
 
 Validation: no runtime validation beyond stream behavior.
 
-Limitations: `edges()` expects edge objects with `u`, `v`, `w`, and `weighted` fields.
+Limitations: `edges()` expects edge objects with `u`, `v`, `w`, and `weighted` fields. `testcases()` intentionally supports one simple callable form: `callable(case_index, printer)`.
 
 ## Modules
 

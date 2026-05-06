@@ -74,6 +74,7 @@ Phase 3 structures:
 - `examples/math_helpers.cpp`
 - `examples/geometry_shapes.cpp`
 - `examples/anti_patterns.cpp`
+- `examples/printer_modifiers.cpp`
 
 Existing focused examples remain available in `examples/`. See [English examples](docs/en/examples.md) or [ví dụ tiếng Việt](docs/vn/examples.md) for compile commands and usage notes.
 
@@ -81,7 +82,7 @@ Existing focused examples remain available in `examples/`. See [English examples
 
 | Area | Capabilities |
 | --- | --- |
-| Core | Xoshiro256**, validation helpers, vector and edge printing |
+| Core | Xoshiro256**, validation helpers, printer modifiers, matrix/grid/vector/edge printing |
 | Arrays | Ranges, fill, iota, shuffle, almost sorted, many equal, blocky |
 | Strings | Alphabets, ranges, palindrome, almost palindrome, periodic, prefix-heavy |
 | Permutations | One-based/zero-based, shuffle, reversed, cyclic shift, few swaps, blocks |
