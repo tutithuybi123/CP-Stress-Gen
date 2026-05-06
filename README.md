@@ -92,7 +92,7 @@ Existing focused examples remain available in `examples/`. See [English examples
 | Trees | Bamboo, star, random, binary, caterpillar, deep recursion, weighted edges, composable builders |
 | Graphs | General, DAG, layered DAG, dense, sparse connected, complete, cycle, path, forest, components, bipartite, composable builders |
 | Math | gcd, lcm, divisors, primes, primality, random prime/composite, coprime pairs |
-| Geometry | Integer points, unique grid points, collinear, boundary, clustered, duplicates |
+| Geometry | Integer points, unique grid points, collinear, boundary, clustered, duplicates, polygon helpers |
 | Anti patterns | Safe sort/tree/graph/string and algorithm-targeted stress candidate patterns with honest names |
 
 ## Known Limitations

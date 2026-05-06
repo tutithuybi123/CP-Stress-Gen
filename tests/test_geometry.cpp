@@ -1,9 +1,11 @@
 #include "cp_stress_gen.hpp"
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <set>
 #include <stdexcept>
+#include <vector>
 
 int main() {
     cp_stress_gen::core::Random rng(7);
@@ -60,6 +62,25 @@ int main() {
         cp_stress_gen::Geometry::point_type{0, 2}
     );
     assert(triangle.size() == 3);
+    assert(cp_stress_gen::Geometry::cross(triangle[0], triangle[1], triangle[2]) == 4);
+    assert(cp_stress_gen::Geometry::orientation(triangle[0], triangle[1], triangle[2]) == 1);
+    assert(cp_stress_gen::Geometry::polygon_area2(rectangle) == 12);
+    assert(std::fabs(cp_stress_gen::Geometry::polygon_area(rectangle) - 6.0) < 1e-9);
+    assert(cp_stress_gen::Geometry::is_convex(rectangle));
+    assert(!cp_stress_gen::Geometry::is_convex(std::vector<cp_stress_gen::Geometry::point_type>{
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{2, 0},
+        cp_stress_gen::Geometry::point_type{1, 1},
+        cp_stress_gen::Geometry::point_type{2, 2},
+        cp_stress_gen::Geometry::point_type{0, 2}
+    }));
+
+    const auto regular = cp_stress_gen::Geometry::regular_polygon(5, 10.0);
+    assert(regular.size() == 5);
+    assert(cp_stress_gen::Geometry::is_convex(regular));
+    const auto candidate = cp_stress_gen::Geometry::convex_polygon_candidate(6, 3.0);
+    assert(candidate.size() == 6);
+    assert(cp_stress_gen::Geometry::is_convex(candidate));
 
     cp_stress_gen::core::Random same_a(22);
     cp_stress_gen::core::Random same_b(22);
@@ -120,6 +141,33 @@ int main() {
     thrown = false;
     try {
         (void)cp_stress_gen::Geometry::clustered_points(3).radius(-1);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::polygon_area(std::vector<cp_stress_gen::Geometry::point_type>{
+            cp_stress_gen::Geometry::point_type{0, 0},
+            cp_stress_gen::Geometry::point_type{1, 0}
+        });
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::regular_polygon(2, 1.0);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::regular_polygon(3, 0.0);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

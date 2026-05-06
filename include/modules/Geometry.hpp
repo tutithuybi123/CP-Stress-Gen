@@ -4,6 +4,7 @@
 #include "../core/Validate.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <set>
@@ -326,9 +327,96 @@ public:
         return std::vector<point_type>{a, b, c};
     }
 
-private:
     [[nodiscard]] static coord_type cross(const point_type a, const point_type b, const point_type c) noexcept {
         return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    }
+
+    [[nodiscard]] static int orientation(const point_type a, const point_type b, const point_type c) noexcept {
+        const coord_type value = cross(a, b, c);
+        if (value > 0) {
+            return 1;
+        }
+        if (value < 0) {
+            return -1;
+        }
+        return 0;
+    }
+
+    [[nodiscard]] static coord_type polygon_area2(const std::vector<point_type>& polygon) {
+        core::require(polygon.size() >= 3, "Geometry::polygon_area2 requires at least three points");
+        coord_type result = 0;
+        for (size_type i = 0; i < polygon.size(); ++i) {
+            const point_type a = polygon[i];
+            const point_type b = polygon[(i + 1) % polygon.size()];
+            result += a.x * b.y - a.y * b.x;
+        }
+        return result;
+    }
+
+    [[nodiscard]] static double polygon_area(const std::vector<point_type>& polygon) {
+        return std::fabs(static_cast<double>(polygon_area2(polygon))) / 2.0;
+    }
+
+    [[nodiscard]] static bool is_convex(const std::vector<point_type>& polygon) {
+        core::require(polygon.size() >= 3, "Geometry::is_convex requires at least three points");
+        int sign = 0;
+        for (size_type i = 0; i < polygon.size(); ++i) {
+            const int current = orientation(polygon[i], polygon[(i + 1) % polygon.size()], polygon[(i + 2) % polygon.size()]);
+            if (current == 0) {
+                continue;
+            }
+            if (sign == 0) {
+                sign = current;
+            } else if (sign != current) {
+                return false;
+            }
+        }
+        return sign != 0;
+    }
+
+    template <typename T>
+    [[nodiscard]] static bool is_convex(const std::vector<Point<T>>& polygon) {
+        core::require(polygon.size() >= 3, "Geometry::is_convex requires at least three points");
+        int sign = 0;
+        for (size_type i = 0; i < polygon.size(); ++i) {
+            const long double value = cross_value(polygon[i], polygon[(i + 1) % polygon.size()], polygon[(i + 2) % polygon.size()]);
+            const int current = value > 0 ? 1 : (value < 0 ? -1 : 0);
+            if (current == 0) {
+                continue;
+            }
+            if (sign == 0) {
+                sign = current;
+            } else if (sign != current) {
+                return false;
+            }
+        }
+        return sign != 0;
+    }
+
+    [[nodiscard]] static std::vector<Point<double>> regular_polygon(const size_type n, const double radius) {
+        core::require(n >= 3, "Geometry::regular_polygon requires at least three points");
+        core::require(radius > 0.0, "Geometry::regular_polygon radius must be positive");
+        const double pi = std::acos(-1.0);
+        std::vector<Point<double>> result;
+        result.reserve(n);
+        for (size_type i = 0; i < n; ++i) {
+            const double angle = 2.0 * pi * static_cast<double>(i) / static_cast<double>(n);
+            result.push_back(Point<double>{radius * std::cos(angle), radius * std::sin(angle)});
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::vector<Point<double>> convex_polygon_candidate(const size_type n, const double radius) {
+        return regular_polygon(n, radius);
+    }
+
+private:
+    template <typename T>
+    [[nodiscard]] static long double cross_value(const Point<T> a, const Point<T> b, const Point<T> c) noexcept {
+        return (static_cast<long double>(b.x) - static_cast<long double>(a.x)) *
+            (static_cast<long double>(c.y) - static_cast<long double>(a.y)) -
+            (static_cast<long double>(b.y) - static_cast<long double>(a.y)) *
+            (static_cast<long double>(c.x) - static_cast<long double>(a.x));
     }
 };
 

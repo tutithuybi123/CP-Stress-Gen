@@ -264,6 +264,8 @@ Common API:
 - `Geometry::duplicate_points(count).point(...)`
 - `Geometry::rectangle_polygon(x1, y1, x2, y2)`
 - `Geometry::triangle(a, b, c)`
+- `Geometry::cross`, `orientation`, `polygon_area2`, `polygon_area`, `is_convex`
+- `Geometry::regular_polygon(n, radius)`, `convex_polygon_candidate(n, radius)`
 
 Example:
 
@@ -271,9 +273,9 @@ Example:
 auto points = cp_stress_gen::Geometry::points(9).rectangle(1, 1, 3, 3).unique().build(rng);
 ```
 
-Validation: invalid rectangles, impossible unique requests, invalid collinear steps, negative cluster radii, and degenerate simple polygons throw.
+Validation: invalid rectangles, impossible unique requests, invalid collinear steps, negative cluster radii, degenerate simple polygons, too-small polygons, and invalid regular polygon radii throw.
 
-Limitations: arbitrary convex polygon generation is not implemented.
+Limitations: arbitrary integer convex polygon generation is not implemented. `convex_polygon_candidate()` returns a regular/on-circle candidate.
 
 ## Anti Pattern Modules
 
