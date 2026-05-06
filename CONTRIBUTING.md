@@ -43,7 +43,8 @@ Tests should print visible `[PASS]` output.
 - Prefer small focused headers and examples.
 - Preserve existing fluent API style.
 - Validate invalid generator configurations with clear exceptions.
-- Keep randomized generators deterministic when a `core::Random&` is passed to `build(rng)`.
+- Keep randomized generators deterministic when a `core::Random&` is passed to
+  `build(rng)`.
 - Avoid overclaiming adversarial helpers; names should describe input shapes.
 
 ## Documentation

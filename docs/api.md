@@ -188,8 +188,10 @@ Common API:
 - `broom(chain_len, leaves)`, `double_star(left_leaves, right_leaves)`, `k_ary(k)`
 - `shuffle()`
 - `Tree::from_edges(n, edges, first)`
-- `TreeBuilder::bamboo(n)`, `star(n)`, `broom(chain_len, leaves)`, `double_star(left, right)`, `k_ary(n, k)`
-- `TreeBuilder::attach(...)`, `merge(...)`, `renumber(...)`, `shuffle_vertices(rng)`, `shuffle_edges(rng)`, `build()`
+- `TreeBuilder::bamboo(n)`, `star(n)`, `broom(chain_len, leaves)`,
+  `double_star(left, right)`, `k_ary(n, k)`
+- `TreeBuilder::attach(...)`, `merge(...)`, `renumber(...)`,
+  `shuffle_vertices(rng)`, `shuffle_edges(rng)`, `build()`
 
 Example:
 
@@ -225,7 +227,8 @@ Common API:
 - `shuffle()`
 - `Graph::from_edges(n, edges, directed, first)`
 - `GraphBuilder::add_edge`, `add_path`, `add_cycle`, `add_clique`, `add_bipartite`
-- `GraphBuilder::merge`, `renumber`, `shuffle_vertices`, `shuffle_edges`, `remove_duplicate_edges`, `complement`, `build`
+- `GraphBuilder::merge`, `renumber`, `shuffle_vertices`, `shuffle_edges`,
+  `remove_duplicate_edges`, `complement`, `build`
 
 Example:
 
@@ -333,15 +336,20 @@ Common API:
 - `anti::TreeKiller::chain`, `star`, `chain_with_branches`, `broom`
 - `anti::GraphKiller::dense`, `long_dag_chain`, `sparse_connected`, `dense_dag`
 - `anti::StringKiller::repeated`, `alternating`, `prefix_heavy`, `kmp_prefix_pattern`
-- `anti::DfsBfsKiller::deep_chain`, `many_components`, `huge_branching`, `broom_tree`, `grid_maze_like`
+- `anti::DfsBfsKiller::deep_chain`, `many_components`, `huge_branching`,
+  `broom_tree`, `grid_maze_like`
 - `anti::DijkstraKiller::many_equal_distances`, `zero_weight_edges`,
   `dense_weighted_trap`, `layered_equal_shortest_paths`
-- `anti::DsuKiller::redundant_edges`, `delayed_connectivity`, `reverse_union_sequence`, `many_queries_same_component`
-- `anti::DpKiller::all_equal_array`, `monotonic_array`, `alternating_array`, `boundary_sizes`, `knapsack_tight_capacity`
-- `anti::GreedyKiller::local_optimum_trap_array`, `interval_scheduling_trap`, `coin_change_greedy_trap`
+- `anti::DsuKiller::redundant_edges`, `delayed_connectivity`,
+  `reverse_union_sequence`, `many_queries_same_component`
+- `anti::DpKiller::all_equal_array`, `monotonic_array`, `alternating_array`,
+  `boundary_sizes`, `knapsack_tight_capacity`
+- `anti::GreedyKiller::local_optimum_trap_array`, `interval_scheduling_trap`,
+  `coin_change_greedy_trap`
 - `anti::BinarySearchKiller::off_by_one_boundaries`, `lower_upper_bound_duplicates`,
   `all_false_then_true`, `all_true_then_false`
-- `anti::StringPatternKiller::kmp_worst_prefix`, `z_repeated_blocks`, `border_heavy`, `periodic_with_break`
+- `anti::StringPatternKiller::kmp_worst_prefix`, `z_repeated_blocks`,
+  `border_heavy`, `periodic_with_break`
 - `anti::HashKiller::repeated_base_sensitive_shapes`, `collision_like_patterns`
 
 Example:

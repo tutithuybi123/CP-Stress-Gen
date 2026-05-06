@@ -20,7 +20,11 @@ function Resolve-Project-Include {
 
     $CurrentDir = Split-Path -Parent $CurrentHeader
     $Candidate = [System.IO.Path]::GetFullPath((Join-Path $CurrentDir $IncludePath))
-    if (-not $Candidate.StartsWith($IncludeRootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+    $InsideIncludeRoot = $Candidate.StartsWith(
+        $IncludeRootFull,
+        [System.StringComparison]::OrdinalIgnoreCase
+    )
+    if (-not $InsideIncludeRoot) {
         throw "Project include escapes include directory: $IncludePath"
     }
     if (-not (Test-Path $Candidate)) {
@@ -38,7 +42,8 @@ function Expand-Header {
     }
 
     $Expanded = New-Object "System.Collections.Generic.List[string]"
-    $Relative = $FullPath.Substring($IncludeRootFull.Length).TrimStart("\", "/").Replace("\", "/")
+    $Relative = $FullPath.Substring($IncludeRootFull.Length)
+    $Relative = $Relative.TrimStart("\", "/").Replace("\", "/")
     $Expanded.Add("// BEGIN: include/$Relative")
 
     foreach ($Line in [System.IO.File]::ReadAllLines($FullPath)) {
@@ -69,6 +74,15 @@ function Expand-Header {
 }
 
 $Body = Expand-Header $Entry
+if ($Body.Count -lt 500) {
+    throw "Generated bundle is unexpectedly small; local headers may not have been expanded."
+}
+
+$BodyText = $Body -join "`n"
+if ($BodyText -notmatch "namespace\s+cp_stress_gen") {
+    throw "Generated bundle does not appear to contain CP-Stress-Gen library code."
+}
+
 $Lines = New-Object "System.Collections.Generic.List[string]"
 $Lines.Add("// CP-Stress-Gen single-header bundle")
 $Lines.Add("// SPDX-License-Identifier: MIT")
@@ -85,5 +99,14 @@ foreach ($Line in $Body) {
     $Lines.Add($Line)
 }
 
-[System.IO.File]::WriteAllText($Output, (($Lines -join "`r`n") + "`r`n"), [System.Text.UTF8Encoding]::new($false))
+$QuotedProjectIncludes = $Lines | Where-Object {
+    $_ -match '^\s*#include\s+"'
+}
+if ($QuotedProjectIncludes.Count -gt 0) {
+    throw "Generated bundle still contains quoted project includes."
+}
+
+$OutputText = ($Lines -join "`r`n") + "`r`n"
+$Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+[System.IO.File]::WriteAllText($Output, $OutputText, $Utf8NoBom)
 Write-Host "[PASS] bundle_single_header $Output"

@@ -2,67 +2,125 @@
 
 ## Phase 1: Implemented
 
-| Status | Task | Objective | Acceptance Criteria |
-| --- | --- | --- | --- |
-| Done | Scope and docs | Establish CP-Stress-Gen-only C++17 scope. | README, docs, and git hygiene are present. |
-| Done | C++17 cleanup | Remove C++20-only public API usage. | Headers compile with `-std=c++17`. |
-| Done | Core helpers | Add random, validation, and printer helpers. | Core tests compile and run. |
-| Done | Existing generators | Stabilize Array, Tree, and Graph. | Counts, bounds, connectivity, DAG order, and duplicate rules are tested. |
-| Done | String and permutation | Add practical string and permutation generators. | Feature tests compile and run. |
-| Done | Math and geometry | Add small math and integer geometry helpers. | Helper tests compile and run. |
-| Done | Safe anti patterns | Add honest adversarial pattern modules. | Pattern tests compile and run. |
-| Done | Examples and tests | Add direct `g++` examples and assert tests. | All examples compile and tests run. |
+- Scope and docs:
+  establish CP-Stress-Gen-only C++17 scope.
+  Acceptance: README, docs, and git hygiene are present.
+- C++17 cleanup:
+  remove C++20-only public API usage.
+  Acceptance: headers compile with `-std=c++17`.
+- Core helpers:
+  add random, validation, and printer helpers.
+  Acceptance: core tests compile and run.
+- Existing generators:
+  stabilize Array, Tree, and Graph.
+  Acceptance: counts, bounds, connectivity, DAG order, and duplicate rules are tested.
+- String and permutation:
+  add practical string and permutation generators.
+  Acceptance: feature tests compile and run.
+- Math and geometry:
+  add small math and integer geometry helpers.
+  Acceptance: helper tests compile and run.
+- Safe anti patterns:
+  add honest adversarial pattern modules.
+  Acceptance: pattern tests compile and run.
+- Examples and tests:
+  add direct `g++` examples and assert tests.
+  Acceptance: all examples compile and tests run.
 
 ## Phase 2: Implemented
 
-| Status | Task | Objective | Acceptance Criteria |
-| --- | --- | --- | --- |
-| Done | License and docs polish | Make project usage and legal status clear. | MIT license present; README reflects implemented Phase 1. |
-| Done | Practical workflows | Show real stress-generation patterns. | New examples compile with direct `g++`. |
-| Done | Safe generator features | Add useful patterns without breaking APIs. | Added features are validated and tested. |
-| Done | Validation hardening | Expand edge-case and failure coverage. | Invalid configs throw clear exceptions. |
-| Done | Packaging notes | Explain include-path usage without build systems. | Direct include workflow is documented. |
+- License and docs polish:
+  make project usage and legal status clear.
+  Acceptance: MIT license present; README reflects implemented Phase 1.
+- Practical workflows:
+  show real stress-generation patterns.
+  Acceptance: new examples compile with direct `g++`.
+- Safe generator features:
+  add useful patterns without breaking APIs.
+  Acceptance: added features are validated and tested.
+- Validation hardening:
+  expand edge-case and failure coverage.
+  Acceptance: invalid configs throw clear exceptions.
+- Packaging notes:
+  explain include-path usage without build systems.
+  Acceptance: direct include workflow is documented.
 
 ## Phase 3: Implemented
 
-| Status | Task | Objective | Acceptance Criteria |
-| --- | --- | --- | --- |
-| Done | Direct g++ scripts | Add local build/test/example scripts without CMake. | `scripts/check_all.ps1` compiles tests, runs tests, and compiles examples. |
-| Done | CI workflow | Add GitHub Actions direct `g++` checks. | CI builds tests, runs tests, and builds examples on `ubuntu-latest`. |
-| Done | API reference | Document public modules conservatively. | `docs/api.md` covers purpose, common API, validation, and limits. |
-| Done | Safe generator helpers | Add degree-limited trees, graph structures, math helpers, geometry shapes, and honest anti patterns. | New features are covered by assert tests with visible `[PASS]` output. |
-| Done | Structure examples | Add concise examples for Phase 3 helpers. | New examples compile with direct `g++`. |
+- Direct g++ scripts:
+  add local build/test/example scripts without CMake.
+  Acceptance: `scripts/check_all.ps1` compiles tests, runs tests, and compiles examples.
+- CI workflow:
+  add GitHub Actions direct `g++` checks.
+  Acceptance: CI builds tests, runs tests, and builds examples on `ubuntu-latest`.
+- API reference:
+  document public modules conservatively.
+  Acceptance: `docs/api.md` covers purpose, common API, validation, and limits.
+- Safe generator helpers:
+  add degree-limited trees, graph structures, math helpers, geometry shapes, and honest
+  anti patterns.
+  Acceptance: new features have assert tests with visible `[PASS]` output.
+- Structure examples:
+  add concise examples for Phase 3 helpers.
+  Acceptance: new examples compile with direct `g++`.
 
 ## Phase 4: Public Release Polish
 
-| Status | Task | Objective | Acceptance Criteria |
-| --- | --- | --- | --- |
-| Done | Release notes | Add initial public release notes. | `CHANGELOG.md` includes `0.1.0` unreleased notes. |
-| Done | Contribution guide | Document local setup, checks, and style rules. | `CONTRIBUTING.md` explains direct `g++` workflow. |
-| Done | Issue templates | Add structured bug and feature request forms. | GitHub issue template YAML files are present. |
-| Done | README badges | Show CI, license, and C++17 status. | Badges link to the existing workflow, license, and C++17 reference. |
-| Done | Release consistency | Review public docs for Phase 4 release readiness. | Docs avoid unsupported feature claims. |
+- Release notes:
+  add initial public release notes.
+  Acceptance: `CHANGELOG.md` includes `0.1.0` release notes.
+- Contribution guide:
+  document local setup, checks, and style rules.
+  Acceptance: `CONTRIBUTING.md` explains direct `g++` workflow.
+- Issue templates:
+  add structured bug and feature request forms.
+  Acceptance: GitHub issue template YAML files are present.
+- README badges:
+  show CI, license, and C++17 status.
+  Acceptance: badges link to the existing workflow, license, and C++17 reference.
+- Release consistency:
+  review public docs for Phase 4 release readiness.
+  Acceptance: docs avoid unsupported feature claims.
 
 ## Phase 5: Advanced Generators
 
-| Status | Task | Objective | Acceptance Criteria |
-| --- | --- | --- | --- |
-| Done | Printer modifiers | Make output formatting more ergonomic. | Indexed views, matrix/grid helpers, testcase output, and edge headers are tested. |
-| Done | Tree composition | Support custom tree construction beyond presets. | `TreeBuilder` attach/merge/relabel/shuffle paths compile and pass connectivity tests. |
-| Done | Graph composition | Support custom graph construction and complements. | `GraphBuilder` path/cycle/clique/bipartite/merge/complement behavior is tested. |
-| Done | Algorithm-targeted patterns | Add stress candidate shapes for common algorithm families. | Patterns have invariant tests and honest docs. |
-| Done | String/hash utilities | Add string pattern helpers and rolling hash utilities. | Hash helpers and string invariants are tested. |
-| Done | Geometry helpers | Add safe polygon measurements and regular polygon candidates. | Orientation, area, convexity, and invalid inputs are tested. |
+- Printer modifiers:
+  make output formatting more ergonomic.
+  Acceptance: indexed views, matrix/grid helpers, testcase output, and edge headers are tested.
+- Tree composition:
+  support custom tree construction beyond presets.
+  Acceptance: `TreeBuilder` attach, merge, relabel, and shuffle paths pass connectivity tests.
+- Graph composition:
+  support custom graph construction and complements.
+  Acceptance: `GraphBuilder` path, cycle, clique, bipartite, merge, and complement
+  behavior is tested.
+- Algorithm-targeted patterns:
+  add stress candidate shapes for common algorithm families.
+  Acceptance: patterns have invariant tests and honest docs.
+- String/hash utilities:
+  add string pattern helpers and rolling hash utilities.
+  Acceptance: hash helpers and string invariants are tested.
+- Geometry helpers:
+  add safe polygon measurements and regular polygon candidates.
+  Acceptance: orientation, area, convexity, and invalid inputs are tested.
 
 ## Phase 6: Gap Closing
 
-| Status | Task | Objective | Acceptance Criteria |
-| --- | --- | --- | --- |
-| Done | Markdown reformat | Keep docs readable in raw form and diffs. | Core docs are wrapped without losing meaning. |
-| Done | Single-header bundle | Let users copy one generated header. | `dist/cp_stress_gen.hpp` compiles with `-Idist`. |
-| Done | Deeper string/hash helpers | Add stronger pattern and hash utilities. | New helpers are tested and documented honestly. |
-| Done | Deeper geometry helpers | Add segment, hull, and point utilities. | Geometry invariants and invalid inputs are tested. |
-| Done | Deeper math helpers | Add number theory, modular, and combinatorics helpers. | Math helpers have known-value tests. |
+- Markdown reformat:
+  keep docs readable in raw form and diffs.
+  Acceptance: core docs are wrapped without losing meaning.
+- Single-header bundle:
+  let users copy one generated header.
+  Acceptance: `dist/cp_stress_gen.hpp` compiles with `-Idist`.
+- Deeper string/hash helpers:
+  add stronger pattern and hash utilities.
+  Acceptance: new helpers are tested and documented honestly.
+- Deeper geometry helpers:
+  add segment, hull, and point utilities.
+  Acceptance: geometry invariants and invalid inputs are tested.
+- Deeper math helpers:
+  add number theory, modular, and combinatorics helpers.
+  Acceptance: math helpers have known-value tests.
 
 ## Release Checklist
 

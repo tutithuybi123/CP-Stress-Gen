@@ -32,11 +32,22 @@ jobs:
           done
           echo "[PASS] run_tests"
 
+      - name: Generate single-header bundle
+        shell: pwsh
+        run: |
+          ./scripts/bundle_single_header.ps1
+
       - name: Build examples
         run: |
           for file in examples/*.cpp; do
             name="$(basename "$file" .cpp)"
             echo "[BUILD] $file"
-            g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude "$file" -o ".tmp_build/$name"
+            if [ "$name" = "single_header_basic" ]; then
+              g++ -std=c++17 -Wall -Wextra -pedantic \
+                -Idist "$file" -o ".tmp_build/$name"
+            else
+              g++ -std=c++17 -Wall -Wextra -pedantic \
+                -Iinclude "$file" -o ".tmp_build/$name"
+            fi
           done
           echo "[PASS] build_examples"

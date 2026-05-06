@@ -1,8 +1,8 @@
 # CP-Stress-Gen
 
-[![CI](https://github.com/tutithuybi123/CP-Stress-Gen/actions/workflows/ci.yml/badge.svg)](https://github.com/tutithuybi123/CP-Stress-Gen/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
+[![CI][ci-badge]][ci-workflow]
+[![License: MIT][license-badge]](LICENSE)
+[![C++17][cpp17-badge]][cpp17-reference]
 
 `CP-Stress-Gen` is a lightweight, header-only C++17 library for competitive programming
 test generation. It provides fluent preset generators, composable tree/graph builders,
@@ -46,7 +46,9 @@ Compile directly:
 
 ```powershell
 New-Item -ItemType Directory -Force .tmp_build
-g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude examples/easy_array_sum.cpp -o .tmp_build/easy_array_sum.exe
+g++ -std=c++17 -Wall -Wextra -pedantic `
+    -Iinclude examples/easy_array_sum.cpp `
+    -o .tmp_build/easy_array_sum.exe
 .\.tmp_build\easy_array_sum.exe
 ```
 
@@ -63,7 +65,9 @@ Compile with the generated header:
 
 ```powershell
 .\scripts\bundle_single_header.ps1
-g++ -std=c++17 -Wall -Wextra -pedantic -Idist examples/single_header_basic.cpp -o .tmp_build/single_header_basic.exe
+g++ -std=c++17 -Wall -Wextra -pedantic `
+    -Idist examples/single_header_basic.cpp `
+    -o .tmp_build/single_header_basic.exe
 ```
 
 Do not edit `dist/cp_stress_gen.hpp` manually. Regenerate it from `include/`.
@@ -113,15 +117,15 @@ commands and usage notes.
 
 | Area | Capabilities |
 | --- | --- |
-| Core | Xoshiro256**, validation helpers, printer modifiers, matrix/grid/vector/edge printing |
-| Arrays | Ranges, fill, iota, shuffle, almost sorted, many equal, blocky |
-| Strings | Alphabets, ranges, palindrome, periodic, Thue-Morse, Fibonacci word, de Bruijn, hash utilities |
-| Permutations | One-based/zero-based, shuffle, reversed, cyclic shift, few swaps, blocks |
-| Trees | Bamboo, star, random, binary, caterpillar, deep recursion, weighted edges, composable builders |
-| Graphs | General, DAG, layered DAG, dense, sparse connected, complete, cycle, path, forest, components, bipartite, composable builders |
-| Math | gcd, lcm, divisors, SPF sieve, phi, Mobius, CRT, modular arithmetic, combinatorics, random number helpers |
-| Geometry | Integer/grid/circle points, segment tests, convex hull, bounding boxes, polygon helpers |
-| Anti patterns | Safe sort/tree/graph/string and algorithm-targeted stress candidate patterns with honest names |
+| Core | Random, validation, printer modifiers, vector/matrix/grid/edge output |
+| Arrays | Range, fill, iota, shuffle, almost sorted, many equal, blocky |
+| Strings | Alphabets, palindrome, periodic, Thue-Morse, Fibonacci, de Bruijn, hashes |
+| Permutations | One/zero-based labels, shuffle, reversed, cyclic shifts, few swaps, blocks |
+| Trees | Presets, weights, degree limits, `TreeBuilder` composition |
+| Graphs | Presets, DAGs, components, bipartite graphs, `GraphBuilder` composition |
+| Math | gcd/lcm, primes, SPF, phi, Mobius, CRT, modular math, combinatorics |
+| Geometry | Points, segments, convex hulls, bounding boxes, polygon helpers |
+| Anti patterns | Sort/tree/graph/string patterns and algorithm stress candidates |
 
 ## Known Limitations
 
@@ -161,3 +165,9 @@ does not use CMake.
 ## License
 
 MIT. See `LICENSE`.
+
+[ci-badge]: https://github.com/tutithuybi123/CP-Stress-Gen/actions/workflows/ci.yml/badge.svg
+[ci-workflow]: https://github.com/tutithuybi123/CP-Stress-Gen/actions/workflows/ci.yml
+[license-badge]: https://img.shields.io/badge/License-MIT-yellow.svg
+[cpp17-badge]: https://img.shields.io/badge/C%2B%2B-17-blue.svg
+[cpp17-reference]: https://en.cppreference.com/w/cpp/17
