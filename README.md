@@ -15,6 +15,7 @@ examples for local stress testing.
 - [English installation guide](docs/en/installation.md)
 - [English integration workflows](docs/en/integrations.md)
 - [English benchmark notes](docs/en/benchmarks.md)
+- [English generator cookbook](docs/en/cookbook.md)
 - [API reference](docs/api.md)
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
@@ -22,6 +23,7 @@ examples for local stress testing.
 - [Tài liệu cài đặt tiếng Việt](docs/vn/installation.md)
 - [Tích hợp quy trình tiếng Việt](docs/vn/integrations.md)
 - [Ghi chú benchmark tiếng Việt](docs/vn/benchmarks.md)
+- [Cookbook trình sinh dữ liệu tiếng Việt](docs/vn/cookbook.md)
 
 ## Requirements
 
