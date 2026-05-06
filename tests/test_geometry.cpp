@@ -64,9 +64,51 @@ int main() {
     assert(triangle.size() == 3);
     assert(cp_stress_gen::Geometry::cross(triangle[0], triangle[1], triangle[2]) == 4);
     assert(cp_stress_gen::Geometry::orientation(triangle[0], triangle[1], triangle[2]) == 1);
+    assert(cp_stress_gen::Geometry::orientation(triangle[0], triangle[2], triangle[1]) == -1);
+    assert(cp_stress_gen::Geometry::orientation(
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{1, 1},
+        cp_stress_gen::Geometry::point_type{2, 2}
+    ) == 0);
+    assert(cp_stress_gen::Geometry::dot(
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{2, 0},
+        cp_stress_gen::Geometry::point_type{2, 2}
+    ) == 4);
+    assert(cp_stress_gen::Geometry::dist2(
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{3, 4}
+    ) == 25);
+    assert(cp_stress_gen::Geometry::manhattan(
+        cp_stress_gen::Geometry::point_type{-1, 2},
+        cp_stress_gen::Geometry::point_type{3, -4}
+    ) == 10);
+    assert(cp_stress_gen::Geometry::on_segment(
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{4, 4},
+        cp_stress_gen::Geometry::point_type{2, 2}
+    ));
+    assert(!cp_stress_gen::Geometry::on_segment(
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{4, 4},
+        cp_stress_gen::Geometry::point_type{5, 5}
+    ));
+    assert(cp_stress_gen::Geometry::segments_intersect(
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{4, 4},
+        cp_stress_gen::Geometry::point_type{0, 4},
+        cp_stress_gen::Geometry::point_type{4, 0}
+    ));
+    assert(!cp_stress_gen::Geometry::segments_intersect(
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{1, 0},
+        cp_stress_gen::Geometry::point_type{0, 2},
+        cp_stress_gen::Geometry::point_type{1, 2}
+    ));
     assert(cp_stress_gen::Geometry::polygon_area2(rectangle) == 12);
     assert(std::fabs(cp_stress_gen::Geometry::polygon_area(rectangle) - 6.0) < 1e-9);
     assert(cp_stress_gen::Geometry::is_convex(rectangle));
+    assert(cp_stress_gen::Geometry::is_simple_polygon(rectangle));
     assert(!cp_stress_gen::Geometry::is_convex(std::vector<cp_stress_gen::Geometry::point_type>{
         cp_stress_gen::Geometry::point_type{0, 0},
         cp_stress_gen::Geometry::point_type{2, 0},
@@ -74,6 +116,30 @@ int main() {
         cp_stress_gen::Geometry::point_type{2, 2},
         cp_stress_gen::Geometry::point_type{0, 2}
     }));
+    assert(!cp_stress_gen::Geometry::is_simple_polygon(std::vector<cp_stress_gen::Geometry::point_type>{
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{2, 2},
+        cp_stress_gen::Geometry::point_type{0, 2},
+        cp_stress_gen::Geometry::point_type{2, 0}
+    }));
+
+    const auto box = cp_stress_gen::Geometry::bounding_box(std::vector<cp_stress_gen::Geometry::point_type>{
+        cp_stress_gen::Geometry::point_type{3, -1},
+        cp_stress_gen::Geometry::point_type{-2, 5},
+        cp_stress_gen::Geometry::point_type{1, 4}
+    });
+    assert(box.min.x == -2 && box.min.y == -1);
+    assert(box.max.x == 3 && box.max.y == 5);
+
+    const auto hull = cp_stress_gen::Geometry::convex_hull(std::vector<cp_stress_gen::Geometry::point_type>{
+        cp_stress_gen::Geometry::point_type{0, 0},
+        cp_stress_gen::Geometry::point_type{2, 0},
+        cp_stress_gen::Geometry::point_type{2, 2},
+        cp_stress_gen::Geometry::point_type{0, 2},
+        cp_stress_gen::Geometry::point_type{1, 1}
+    });
+    assert(hull.size() == 4);
+    assert(cp_stress_gen::Geometry::is_convex(hull));
 
     const auto regular = cp_stress_gen::Geometry::regular_polygon(5, 10.0);
     assert(regular.size() == 5);
@@ -81,6 +147,15 @@ int main() {
     const auto candidate = cp_stress_gen::Geometry::convex_polygon_candidate(6, 3.0);
     assert(candidate.size() == 6);
     assert(cp_stress_gen::Geometry::is_convex(candidate));
+    const auto circle = cp_stress_gen::Geometry::circle_points(4, 2.0);
+    assert(circle.size() == 4);
+    assert(std::fabs(circle[0].x - 2.0) < 1e-9);
+    const auto grid = cp_stress_gen::Geometry::grid_points(2, 3);
+    assert(grid.size() == 6);
+    assert(grid.front().x == 0 && grid.front().y == 0);
+    assert(grid.back().x == 1 && grid.back().y == 2);
+    const auto random_hull = cp_stress_gen::Geometry::convex_hull_of_random_points(10, -5, 5, rng);
+    assert(!random_hull.empty());
 
     cp_stress_gen::core::Random same_a(22);
     cp_stress_gen::core::Random same_b(22);
@@ -168,6 +243,41 @@ int main() {
     thrown = false;
     try {
         (void)cp_stress_gen::Geometry::regular_polygon(3, 0.0);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::bounding_box(std::vector<cp_stress_gen::Geometry::point_type>{});
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::is_simple_polygon(std::vector<cp_stress_gen::Geometry::point_type>{
+            cp_stress_gen::Geometry::point_type{0, 0},
+            cp_stress_gen::Geometry::point_type{1, 0}
+        });
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::grid_points(0, 2);
+    } catch (const std::invalid_argument&) {
+        thrown = true;
+    }
+    assert(thrown);
+
+    thrown = false;
+    try {
+        (void)cp_stress_gen::Geometry::circle_points(4, 0.0);
     } catch (const std::invalid_argument&) {
         thrown = true;
     }

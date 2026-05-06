@@ -61,7 +61,7 @@
 | Planned | Markdown reformat | Keep docs readable in raw form and diffs. | Core docs are wrapped without losing meaning. |
 | Done | Single-header bundle | Let users copy one generated header. | `dist/cp_stress_gen.hpp` compiles with `-Idist`. |
 | Done | Deeper string/hash helpers | Add stronger pattern and hash utilities. | New helpers are tested and documented honestly. |
-| Planned | Deeper geometry helpers | Add segment, hull, and point utilities. | Geometry invariants and invalid inputs are tested. |
+| Done | Deeper geometry helpers | Add segment, hull, and point utilities. | Geometry invariants and invalid inputs are tested. |
 | Planned | Deeper math helpers | Add number theory, modular, and combinatorics helpers. | Math helpers have known-value tests. |
 
 ## Release Checklist

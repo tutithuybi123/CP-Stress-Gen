@@ -290,6 +290,10 @@ Common API:
 - `Geometry::rectangle_polygon(x1, y1, x2, y2)`
 - `Geometry::triangle(a, b, c)`
 - `Geometry::cross`, `orientation`, `polygon_area2`, `polygon_area`, `is_convex`
+- `Geometry::dot`, `dist2`, `manhattan`
+- `Geometry::on_segment`, `segments_intersect`
+- `Geometry::bounding_box`, `is_simple_polygon`, `convex_hull`
+- `Geometry::circle_points`, `grid_points`, `convex_hull_of_random_points`
 - `Geometry::regular_polygon(n, radius)`, `convex_polygon_candidate(n, radius)`
 
 Example:
@@ -299,8 +303,8 @@ auto points = cp_stress_gen::Geometry::points(9).rectangle(1, 1, 3, 3).unique().
 ```
 
 Validation: invalid rectangles, impossible unique requests, invalid collinear steps,
-negative cluster radii, degenerate simple polygons, too-small polygons, and invalid
-regular polygon radii throw.
+negative cluster radii, degenerate simple polygons, too-small polygons, empty bounding
+boxes, invalid grid sizes, and invalid regular/circle radii throw.
 
 Limitations: arbitrary integer convex polygon generation is not implemented.
 `convex_polygon_candidate()` returns a regular/on-circle candidate.

@@ -2750,11 +2750,19 @@ struct Point {
     }
 };
 
+using PointLL = Point<long long>;
+using PointD = Point<double>;
+
 class Geometry {
 public:
     using coord_type = long long;
     using point_type = Point<coord_type>;
     using size_type = std::size_t;
+
+    struct BoundingBox {
+        point_type min;
+        point_type max;
+    };
 
     class PointGenerator {
     public:
@@ -3054,6 +3062,20 @@ public:
         return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
     }
 
+    [[nodiscard]] static coord_type dot(const point_type a, const point_type b, const point_type c) noexcept {
+        return (b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y);
+    }
+
+    [[nodiscard]] static coord_type dist2(const point_type a, const point_type b) noexcept {
+        const coord_type dx = a.x - b.x;
+        const coord_type dy = a.y - b.y;
+        return dx * dx + dy * dy;
+    }
+
+    [[nodiscard]] static coord_type manhattan(const point_type a, const point_type b) noexcept {
+        return std::llabs(a.x - b.x) + std::llabs(a.y - b.y);
+    }
+
     [[nodiscard]] static int orientation(const point_type a, const point_type b, const point_type c) noexcept {
         const coord_type value = cross(a, b, c);
         if (value > 0) {
@@ -3063,6 +3085,44 @@ public:
             return -1;
         }
         return 0;
+    }
+
+    [[nodiscard]] static bool on_segment(const point_type a, const point_type b, const point_type p) noexcept {
+        return orientation(a, b, p) == 0 &&
+            std::min(a.x, b.x) <= p.x && p.x <= std::max(a.x, b.x) &&
+            std::min(a.y, b.y) <= p.y && p.y <= std::max(a.y, b.y);
+    }
+
+    [[nodiscard]] static bool segments_intersect(
+        const point_type a,
+        const point_type b,
+        const point_type c,
+        const point_type d
+    ) noexcept {
+        const int o1 = orientation(a, b, c);
+        const int o2 = orientation(a, b, d);
+        const int o3 = orientation(c, d, a);
+        const int o4 = orientation(c, d, b);
+
+        if (o1 != o2 && o3 != o4) {
+            return true;
+        }
+        return (o1 == 0 && on_segment(a, b, c)) ||
+            (o2 == 0 && on_segment(a, b, d)) ||
+            (o3 == 0 && on_segment(c, d, a)) ||
+            (o4 == 0 && on_segment(c, d, b));
+    }
+
+    [[nodiscard]] static BoundingBox bounding_box(const std::vector<point_type>& points) {
+        core::require(!points.empty(), "Geometry::bounding_box requires at least one point");
+        BoundingBox box{points.front(), points.front()};
+        for (const auto& point : points) {
+            box.min.x = std::min(box.min.x, point.x);
+            box.min.y = std::min(box.min.y, point.y);
+            box.max.x = std::max(box.max.x, point.x);
+            box.max.y = std::max(box.max.y, point.y);
+        }
+        return box;
     }
 
     [[nodiscard]] static coord_type polygon_area2(const std::vector<point_type>& polygon) {
@@ -3095,6 +3155,59 @@ public:
             }
         }
         return sign != 0;
+    }
+
+    [[nodiscard]] static bool is_simple_polygon(const std::vector<point_type>& polygon) {
+        core::require(polygon.size() >= 3, "Geometry::is_simple_polygon requires at least three points");
+        const size_type n = polygon.size();
+        for (size_type i = 0; i < n; ++i) {
+            const point_type a = polygon[i];
+            const point_type b = polygon[(i + 1) % n];
+            core::require(!(a == b), "Geometry::is_simple_polygon does not allow zero-length edges");
+            for (size_type j = i + 1; j < n; ++j) {
+                if (i == j || (i + 1) % n == j || i == (j + 1) % n) {
+                    continue;
+                }
+                const point_type c = polygon[j];
+                const point_type d = polygon[(j + 1) % n];
+                if (segments_intersect(a, b, c, d)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    [[nodiscard]] static std::vector<point_type> convex_hull(std::vector<point_type> points) {
+        if (points.size() <= 1) {
+            return points;
+        }
+        std::sort(points.begin(), points.end());
+        points.erase(std::unique(points.begin(), points.end()), points.end());
+        if (points.size() <= 1) {
+            return points;
+        }
+
+        std::vector<point_type> lower;
+        for (const auto& point : points) {
+            while (lower.size() >= 2 && cross(lower[lower.size() - 2], lower.back(), point) <= 0) {
+                lower.pop_back();
+            }
+            lower.push_back(point);
+        }
+
+        std::vector<point_type> upper;
+        for (auto it = points.rbegin(); it != points.rend(); ++it) {
+            while (upper.size() >= 2 && cross(upper[upper.size() - 2], upper.back(), *it) <= 0) {
+                upper.pop_back();
+            }
+            upper.push_back(*it);
+        }
+
+        lower.pop_back();
+        upper.pop_back();
+        lower.insert(lower.end(), upper.begin(), upper.end());
+        return lower;
     }
 
     template <typename T>
@@ -3131,6 +3244,46 @@ public:
 
     [[nodiscard]] static std::vector<Point<double>> convex_polygon_candidate(const size_type n, const double radius) {
         return regular_polygon(n, radius);
+    }
+
+    [[nodiscard]] static std::vector<Point<double>> circle_points(const size_type n, const double radius) {
+        core::require(radius > 0.0, "Geometry::circle_points radius must be positive");
+        if (n == 0) {
+            return {};
+        }
+        const double pi = std::acos(-1.0);
+        std::vector<Point<double>> result;
+        result.reserve(n);
+        for (size_type i = 0; i < n; ++i) {
+            const double angle = 2.0 * pi * static_cast<double>(i) / static_cast<double>(n);
+            result.push_back(Point<double>{radius * std::cos(angle), radius * std::sin(angle)});
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::vector<point_type> grid_points(const size_type rows, const size_type cols) {
+        core::require_positive(rows, "Geometry::grid_points rows must be positive");
+        core::require_positive(cols, "Geometry::grid_points cols must be positive");
+        std::vector<point_type> result;
+        result.reserve(rows * cols);
+        for (size_type r = 0; r < rows; ++r) {
+            for (size_type c = 0; c < cols; ++c) {
+                result.push_back(point_type{static_cast<coord_type>(r), static_cast<coord_type>(c)});
+            }
+        }
+        return result;
+    }
+
+    [[nodiscard]] static std::vector<point_type> convex_hull_of_random_points(
+        const size_type count,
+        const coord_type min_coord,
+        const coord_type max_coord,
+        core::Random& rng
+    ) {
+        core::require_positive(count, "Geometry::convex_hull_of_random_points count must be positive");
+        core::require_range(min_coord, max_coord, "Geometry::convex_hull_of_random_points requires min <= max");
+        const auto generated = points(count).rectangle(min_coord, min_coord, max_coord, max_coord).unique().build(rng);
+        return convex_hull(generated);
     }
 
 private:
