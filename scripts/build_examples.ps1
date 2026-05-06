@@ -12,7 +12,11 @@ try {
         $Name = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
         $Output = Join-Path $BuildDir "$Name.exe"
         Write-Host "[BUILD] examples/$($_.Name)"
-        & g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude $_.FullName -o $Output
+        if ($_.Name -eq "single_header_basic.cpp") {
+            & g++ -std=c++17 -Wall -Wextra -pedantic -Idist $_.FullName -o $Output
+        } else {
+            & g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude $_.FullName -o $Output
+        }
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to build examples/$($_.Name)"
         }

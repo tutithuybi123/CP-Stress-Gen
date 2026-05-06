@@ -50,6 +50,24 @@ g++ -std=c++17 -Wall -Wextra -pedantic -Iinclude examples/easy_array_sum.cpp -o 
 .\.tmp_build\easy_array_sum.exe
 ```
 
+## Single-Header Usage
+
+The public source of truth is the `include/` directory. For copy-only workflows,
+the repository also ships a generated bundle:
+
+```cpp
+#include "cp_stress_gen.hpp"
+```
+
+Compile with the generated header:
+
+```powershell
+.\scripts\bundle_single_header.ps1
+g++ -std=c++17 -Wall -Wextra -pedantic -Idist examples/single_header_basic.cpp -o .tmp_build/single_header_basic.exe
+```
+
+Do not edit `dist/cp_stress_gen.hpp` manually. Regenerate it from `include/`.
+
 ## Examples
 
 Easy:
@@ -72,6 +90,7 @@ Hard:
 
 Phase 3 structures:
 
+- `examples/single_header_basic.cpp`
 - `examples/tree_degree_limit.cpp`
 - `examples/tree_composition.cpp`
 - `examples/graph_structures.cpp`
