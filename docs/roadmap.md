@@ -150,6 +150,7 @@
 - Optional CMake or package manager integration.
 - `TestSuite-Studio` bridge after the CLI library remains stable.
 - More graph families and contest-specific generator presets.
+- User feedback pass and examples cleanup after more public usage.
 
 ## Release Checklist
 
@@ -161,8 +162,7 @@
 - `dist/cp_stress_gen.hpp` is regenerated when public headers change.
 - No local build artifacts are committed.
 - Deferred work remains clearly marked.
-- For `v0.2.0`, Phase 5 and Phase 6 notes remain under `Unreleased` until the tag is
-  explicitly created.
+- For `v0.3.0`, release notes are dated before tagging.
 
 ## Deferred Work
 
